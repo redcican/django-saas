@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tracer',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +55,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,6 +68,21 @@ TEMPLATES = [
     },
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis:://127.0.0.1:6379",  # 安装redis的主机的 IP 和 端口
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 1000,
+                "encoding": 'utf-8'
+            },
+            "PASSWORD": "1228"  # redis密码
+        }
+    }
+}
+
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
@@ -75,8 +91,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'djangosaas',
+        'USER': 'postgres',
+        'PASSWORD': '1228',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 

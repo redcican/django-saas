@@ -1,0 +1,136 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+
+{% block title %} register {% endblock title %}
+
+{% block css %}
+ 
+    {% comment %} <link rel="stylesheet" href="{% static 'css/account.css' %}"> {% endcomment %}
+
+
+{% endblock css %}
+
+{% block content %}
+<section class="vh-100">
+  <div class="container h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-lg-12 col-xl-11">
+        <div class="card text-black" style="border-radius: 25px;">
+          <div class="card-body p-md-5">
+            <div class="row justify-content-center">
+              <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+
+                <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
+
+                <form class="mx-1 mx-md-4" method="POST" novalidate>
+                    
+                {% csrf_token %}
+                
+                <div class="d-flex flex-row align-items-center mb-4">
+                    <div class="form-outline flex-fill mb-0">
+                      <label class="form-label" for="form3Example1c">Username</label>
+                      {{ form.username }}
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <div class="form-outline flex-fill mb-0">
+                      <label class="form-label" for="form3Example3c">Your Email</label>
+                      {{ form.email }}
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <div class="form-outline flex-fill mb-0">
+                      <label class="form-label" for="form3Example4c">Password</label>
+                      {{ form.password }}
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <div class="form-outline flex-fill mb-0">
+                      <label class="form-label" for="form3Example4cd">Repeat your password</label>
+                        {{ form.confirm_password }}
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-row align-items-center mb-4">
+                    <div class="form-outline flex-fill mb-0">
+                      <label class="form-label" for="form3Example4cd">Mobile phone</label>
+                        {{ form.mobile_phone }}
+                    </div>
+                  </div>
+
+                   <div class="d-flex flex-row align-items-center mb-4">
+                    <div class="form-outline flex-fill mb-0">
+                      <label class="form-label" for="form3Example4cd">Verification code</label>
+                            <div class="row">
+                            <div class="col">
+                                {{ form.code }}
+                                <span class="error-msg"> {{ field.errors.0 }} </span>
+                            </div>
+                            <div class="col-auto">
+                                <input id="btnSms" type="button" class="btn btn-outline-primary" value="Click for code">
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+
+
+                  <div class="d-flex mb-3 mb-lg-4">
+                    <button type="button" class="btn btn-primary btn-lg">Register</button>
+                  </div>
+
+                </form>
+
+              </div>
+              <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp" class="img-fluid" alt="Sample image">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!--
+    <div class="account">
+        <div class="title">用户注册</div>
+        <form id="form" method="POST" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.name == 'code' %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label}}">{{ field.label }}</label>
+                        <div class="row">
+                            <div class="col">
+                                {{ field }}
+                                <span class="error-msg"> {{ field.errors.0 }} </span>
+                            </div>
+                            <div class="col-auto">
+                                <input id="btnSms" type="button" class="btn btn-outline-primary" value="点击获取验证码">
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label}}">{{ field.label }}</label>                
+                        {{ field }}
+                        <span class="error-msg"> {{ field.errors.0 }} </span>        
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <div class="row">
+                <div class="col-xs-3">
+                    <input type="submit" type="button" class="btn btn-primary" value="注 册"/>
+                </div>
+        </form>
+    </div>
+-->   
+{% endblock content %}  
+{% block js %}
+{% endblock js %}	
+
