@@ -1,6 +1,6 @@
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import render
-from tracer.forms.account import RegisterForm
+from tracer.forms.account import RegisterForm, SendSmsForm
 
 def register(request):
     form = RegisterForm()
@@ -10,5 +10,7 @@ def send_sms(request):
     """
     Send sms
     """
-    print(request.GET)
-    return HttpResponse('<h1>Send sms</h1>')
+    form = SendSmsForm(request, data=request.GET)
+    if form.is_valid():
+        return JsonResponse({'status': True})
+    return JsonResponse({'status': False, 'errors': form.errors})

@@ -73,7 +73,7 @@ TEMPLATES = [
 
 redis_host = os.getenv('REDIS_HOST_IP')
 redis_ip = os.getenv('REDIS_HOST_PORT')
-
+redis_password = os.getenv('REDIS_PASSWORD')
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -84,7 +84,7 @@ CACHES = {
                 "max_connections": 1000,
                 "encoding": 'utf-8'
             },
-            "PASSWORD": "1228"  # redis密码
+            "PASSWORD": redis_password  # redis密码
         }
     }
 }
@@ -154,3 +154,8 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Twilio credentials
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
