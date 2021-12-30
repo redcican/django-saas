@@ -70,7 +70,7 @@
                                 <span class="error-msg"> {{ field.errors.0 }} </span>
                             </div>
                             <div class="col-auto">
-                                <input id="btnSms" type="button" class="btn btn-outline-primary" value="Click for code">
+                                <input id="btnSms" type="button" class="btn btn-outline-primary" value="Verify">
                             </div>
                         </div>
                     </div>
@@ -132,5 +132,29 @@
 -->   
 {% endblock content %}  
 {% block js %}
+    <script>
+        // 页面框架加载完成之后自动执行的js代码
+        $(function() {
+            bindClickBtnSms();
+        });
+
+        function bindClickBtnSms() {
+            $('#btnSms').click(function() {
+                var mobilePhone = $('#id_mobile_phone').val();
+
+                // 发送ajax请求
+                $.ajax({
+                    url: "{% url 'tracer:send_sms' %}",
+                    type: 'GET',
+                    data: {
+                        mobile_phone: mobilePhone, tpl: "register"
+                    },
+                    success: function(res) {
+                        console.log(res);
+                    }
+                });
+            })
+        }
+    </script>
 {% endblock js %}	
 

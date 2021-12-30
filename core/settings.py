@@ -11,10 +11,13 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -68,10 +71,13 @@ TEMPLATES = [
     },
 ]
 
+redis_host = os.getenv('REDIS_HOST_IP')
+redis_ip = os.getenv('REDIS_HOST_PORT')
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis:://127.0.0.1:6379",  # 安装redis的主机的 IP 和 端口
+        "LOCATION": f"redis:://{redis_host}:{redis_ip}",  # 安装redis的主机的 IP 和 端口
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {
@@ -88,15 +94,20 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+postgres_database_name = os.getenv('POSTGRES_DATABASE_NAME')
+postgres_user_name = os.getenv('POSTGRES_USER_NAME')
+postgres_password = os.getenv('POSTGRES_PASSWORD')
+postgres_host = os.getenv('POSTGRES_HOST')
+postgres_port = os.getenv('POSTGRES_PORT')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'djangosaas',
-        'USER': 'postgres',
-        'PASSWORD': '1228',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'NAME': postgres_database_name,
+        'USER': postgres_user_name,
+        'PASSWORD': postgres_password,
+        'HOST': postgres_host,
+        'PORT': postgres_port
     }
 }
 
@@ -143,8 +154,3 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-try:
-    from .local_settings import *
-except ImportError:
-    pass

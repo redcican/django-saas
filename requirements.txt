@@ -1,0 +1,6 @@
+Django==3.2.9
+django-redis==5.1.0
+phonenumbers==8.12.40
+psycopg2==2.9.2
+python-dotenv==0.19.2
+twilio==7.4.0
