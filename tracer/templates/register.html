@@ -80,7 +80,7 @@
                                 <span class="error-msg"></span>
                             </div>
                             <div class="col-auto">
-                                <input id="btnSms" type="button" class="btn btn-outline-primary" value="Verify">
+                                <input id="btnSms" type="button" class="btn btn-outline-primary" value="Verify Code">
                             </div>
                         </div>
                     </div>
@@ -151,6 +151,7 @@
         function bindClickBtnSms() {
             $('#btnSms').click(function() {
 
+                // 清除错误提示
                 $('.error-msg').empty();
 
                 var mobilePhone = $('#id_mobile_phone').val();
@@ -165,7 +166,7 @@
                     dataType: 'JSON',
                     success: function(res) {
                         if(res.status){
-                            console.log('发送成功');
+                            sendSmsRemind(60);
                         }else{
                             $.each(res.errors, function(key, value) {
                                 $('#id_' + key).next().text(value[0]);
@@ -174,6 +175,22 @@
                     }
                 });
             })
+        }
+
+        // 发送短信验证码
+        function sendSmsRemind(time) {
+            var $smsBtn = $('#btnSms');
+            $smsBtn.attr('disabled', true);
+            $smsBtn.val(time + 's resend');
+            var timer = setInterval(function() {
+                time--;
+                $smsBtn.val(time + 's resend');
+                if(time <= 0) {
+                    clearInterval(timer);
+                    $smsBtn.attr('disabled', false);
+                    $smsBtn.val('Verify Code');
+                }
+            }, 1000);
         }
     </script>
 {% endblock js %}	
