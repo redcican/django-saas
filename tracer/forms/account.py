@@ -6,6 +6,7 @@ from django_redis import get_redis_connection
 import random
 from utils.send_sms import send_sms
 
+
 phone_regex = RegexValidator(
        regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
 
@@ -62,8 +63,10 @@ class SendSmsForm(forms.Form):
         
         send_result = send_sms(mobile_phone, tpl, code)
         
-        if send_result["status"] != 'sent':
-            raise ValidationError(f'Sending sms failed: {send_result["error_message"]}')  
+        
+        if send_result.status != 'sent':
+            raise ValidationError(
+                f'Sending sms failed: {send_result.error_message}')
         
         # save the code to the redis cache
         conn = get_redis_connection()

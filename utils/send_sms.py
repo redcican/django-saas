@@ -28,4 +28,6 @@ def send_sms(to_number, tpl, code):
             from_=phone_number,
             to=to_number
          )
-    return message.sid
+    message_out = client.messages(message.sid).fetch()
+    return message_out
+    
