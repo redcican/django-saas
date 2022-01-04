@@ -52,8 +52,22 @@
                   </div>
 
           <!-- Submit button -->
-          <button id="btnSubmit" type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
-
+          <div class="text-center text-lg-start mt-4 pt-2">
+   
+            <button id="btnSubmit" type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
+            <div class="row align-items-end">
+                  <div class="col">
+                                  <p class="middle fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="{% url 'tracer:register' %}"
+                class="link-info">Register</a></p>
+                  </div>
+                  <div class="col-auto">
+            <a href="{% url 'tracer:login' %}"
+                class="link-primary">Email or Mobilephone Login</a>
+                </div>
+            </div>
+          </div>
+                </div>
+            </div>
         </form>
       </div>
     </div>

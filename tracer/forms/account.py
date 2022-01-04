@@ -175,3 +175,31 @@ class LoginSmsForm(BootstrapForm, forms.Form):
             raise ValidationError('Invalid code, please try again')
 
         return code
+
+
+class LoginForm(BootstrapForm, forms.Form):
+    email_or_phone = forms.CharField(label='Email or Mobil phone')
+    password = forms.CharField(label='password', widget=forms.PasswordInput())
+    code = forms.CharField(label='image code')
+    
+    # get the request object from the view by rewritting the init method
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+    
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        
+        # from request get session and then get image code
+        session_code = self.request.session.get('image_code')
+        if not session_code:
+            raise ValidationError('Image code is expired, please try again')
+        
+        if code.strip().lower() != session_code.lower():
+            raise ValidationError('The image code is wrong, please try again')
+        
+        return code
+    
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        return encrypt.md5(password)

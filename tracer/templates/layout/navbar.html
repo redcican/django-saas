@@ -2,7 +2,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container">
-    <a class="navbar-brand" href="#">Tracer</a>
+    <a class="navbar-brand" href="{% url 'tracer:index' %}">Tracer</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -23,7 +23,10 @@
     </ul>
     <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link" href="#">登录</a>
+          <a class="nav-link" href="{% url 'tracer:login' %}">Login</a>
+        </li>
+          <li class="nav-item">
+          <a class="nav-link" href="{% url 'tracer:register' %}">Register</a>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
