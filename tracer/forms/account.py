@@ -115,8 +115,13 @@ class SendSmsForm(forms.Form):
         if tpl not in ['register', 'login']:
             raise ValidationError('Invalid tpl parameter')
         
-        if models.UserInfo.objects.filter(mobile_phone=mobile_phone).exists():
-            raise ValidationError('Mobile phone already exists')
+        exists = models.UserInfo.objects.filter(mobile_phone=mobile_phone).exists()
+        if tpl == 'login':
+            if not exists:
+                raise ValidationError('Mobile phone does not exist')
+        else:
+            if exists:
+                raise ValidationError('Mobile phone already exists')
         
         # check if the sms was sent successfully
         code = ''.join([str(random.randint(0, 9)) for _ in range(4)])
@@ -141,4 +146,32 @@ class LoginSmsForm(BootstrapForm, forms.Form):
         validators=[phone_regex], max_length=17, label='Mobile phone')
 
     code = forms.CharField(label='code', widget=forms.TextInput())
-    
+
+    def clean_mobile_phone(self):
+        mobile_phone = self.cleaned_data['mobile_phone']
+        
+        exists = models.UserInfo.objects.filter(mobile_phone=mobile_phone).exists()
+        # = models.UserInfo.objects.filter(mobile_phone=mobile_phone).first()
+        
+        if not exists:
+            raise ValidationError('Mobile phone already exists')
+        return mobile_phone
+
+    def clean_code(self):
+        code = self.cleaned_data['code']
+        mobile_phone = self.cleaned_data.get('mobile_phone')
+
+        if not mobile_phone:
+            return code
+
+        conn = get_redis_connection()
+        redis_code = conn.get(mobile_phone)
+        if not redis_code:
+            raise ValidationError('Invalid code or expired, please try again')
+
+        redis_str_code = redis_code.decode('utf-8')
+
+        if code.strip() != redis_str_code:
+            raise ValidationError('Invalid code, please try again')
+
+        return code

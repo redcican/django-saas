@@ -27,5 +27,14 @@ def login_sms(request):
     """
     Login with sms
     """
-    form = LoginSmsForm()
-    return render(request, 'login_sms.html', {'form': form})
+    if request.method == 'GET':
+        form = LoginSmsForm()
+        return render(request, 'login_sms.html', {'form': form})
+    
+    form = LoginSmsForm(data=request.POST)
+    if form.is_valid():
+        # user = form.cleaned_data['mobile_phone']
+        # put user info to session -- TODO
+        return JsonResponse({'status': True, 'data': '/index/'})
+    
+    return JsonResponse({'status': False, 'errors': form.errors})

@@ -52,7 +52,7 @@
                   </div>
 
           <!-- Submit button -->
-          <button type="submit" class="btn btn-primary btn-lg btn-block">Login in</button>
+          <button id="btnSubmit" type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
 
         </form>
       </div>
@@ -60,3 +60,85 @@
   </div>
 </section>
 <{% endblock content %}
+{% block js %}
+    <script>
+        // 页面框架加载完成之后自动执行的js代码
+        $(function() {
+            bindClickBtnSms();
+            bindClickBtnSubmit();
+        });
+
+        function bindClickBtnSms() {
+            $('#btnSms').click(function() {
+
+                // 清除错误提示
+                $('.error-msg').empty();
+
+                var mobilePhone = $('#id_mobile_phone').val();
+
+                // 发送ajax请求
+                $.ajax({
+                    url: "{% url 'tracer:send_sms' %}",
+                    type: 'GET',
+                    data: {
+                        mobile_phone: mobilePhone, tpl: "login"
+                    },
+                    dataType: 'JSON',
+                    success: function(res) {
+                        if(res.status){
+                            sendSmsRemind(60);
+                        }else{
+                            $.each(res.errors, function(key, value) {
+                                $('#id_' + key).next().text(value[0]);
+                            });
+                        }
+                    }
+                });
+            })
+        }
+
+        // 发送短信验证码
+        function sendSmsRemind(time) {
+            var $smsBtn = $('#btnSms');
+            $smsBtn.attr('disabled', true);
+            $smsBtn.val(time + 's resend');
+            var timer = setInterval(function() {
+                time--;
+                $smsBtn.val(time + 's resend');
+                if(time <= 0) {
+                    clearInterval(timer);
+                    $smsBtn.attr('disabled', false);
+                    $smsBtn.val('Verify Code');
+                }
+            }, 1000);
+        }
+
+        // 点击提交按钮
+        function bindClickBtnSubmit() {
+            $('#btnSubmit').click(function() {
+                // 清除错误提示
+                $('.error-msg').empty();
+
+                // 包含所有form表单的数据和csrf_token
+                var formData = $('#form').serialize();
+
+                // 发送ajax请求
+                $.ajax({
+                    url: "{% url 'tracer:login_sms' %}",
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'JSON',
+                    success: function(res) {
+                        if(res.status){
+                            window.location.href = res.data;
+                        }else{
+                            $.each(res.errors, function(key, value) {
+                                $('#id_' + key).next().text(value[0]);
+                            });
+                        }
+                    }
+                }); 
+            })
+        }
+    </script>
+{% endblock js %}	
