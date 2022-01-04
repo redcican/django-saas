@@ -6,12 +6,13 @@ from django_redis import get_redis_connection
 import random
 from utils.send_sms import send_sms
 from utils import encrypt
+from tracer.forms.bootstrap import BootstrapForm
 
 phone_regex = RegexValidator(
        regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
 
 
-class RegisterForm(forms.ModelForm):
+class RegisterForm(BootstrapForm, forms.ModelForm):
     
     # mobile_phone = forms.CharField(label='Mobile phone', validators=[
     #                               RegexValidator(r'^(1[3|4|5|6|7|8|9])\d{9}$', 'Malformed phone number'), ])
@@ -44,11 +45,6 @@ class RegisterForm(forms.ModelForm):
         # the order of fields in the form is matter, first defined will be firstly verified
         fields = ['username','email','password', 'confirm_password', 'mobile_phone', 'code']
         
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for _, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = 'Please enter %s' % (field.label,)
             
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -138,3 +134,11 @@ class SendSmsForm(forms.Form):
             
         
         return mobile_phone
+    
+    
+class LoginSmsForm(BootstrapForm, forms.Form):
+    mobile_phone = forms.CharField(
+        validators=[phone_regex], max_length=17, label='Mobile phone')
+
+    code = forms.CharField(label='code', widget=forms.TextInput())
+    
