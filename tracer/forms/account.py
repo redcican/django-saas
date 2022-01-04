@@ -69,7 +69,7 @@ class RegisterForm(forms.ModelForm):
         return encrypt.md5(password)
     
     def clean_confirm_password(self):
-        password = self.cleaned_data['password']
+        password = self.cleaned_data.get('password')
         confirm_password = encrypt.md5(self.cleaned_data['confirm_password'])
         if password != confirm_password:
             raise ValidationError('Password does not match')
