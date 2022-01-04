@@ -27,7 +27,7 @@
 
                 <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
 
-                <form class="mx-1 mx-md-4" method="POST" novalidate>
+                <form  id="form" class="mx-1 mx-md-4" method="POST" novalidate>
                     
                 {% csrf_token %}
                 
@@ -88,7 +88,7 @@
 
 
                   <div class="d-flex mb-3 mb-lg-4">
-                    <button type="button" class="btn btn-primary btn-lg">Register</button>
+                    <button id="btnSubmit" type="button" class="btn btn-primary btn-lg">Register</button>
                   </div>
 
                 </form>
@@ -146,6 +146,7 @@
         // 页面框架加载完成之后自动执行的js代码
         $(function() {
             bindClickBtnSms();
+            bindClickBtnSubmit();
         });
 
         function bindClickBtnSms() {
@@ -191,6 +192,34 @@
                     $smsBtn.val('Verify Code');
                 }
             }, 1000);
+        }
+
+        // 点击提交按钮
+        function bindClickBtnSubmit() {
+            $('#btnSubmit').click(function() {
+                // 清除错误提示
+                $('.error-msg').empty();
+
+                // 包含所有form表单的数据和csrf_token
+                var formData = $('#form').serialize();
+
+                // 发送ajax请求
+                $.ajax({
+                    url: "{% url 'tracer:register' %}",
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'JSON',
+                    success: function(res) {
+                        if(res.status){
+                            window.location.href = res.data;
+                        }else{
+                            $.each(res.errors, function(key, value) {
+                                $('#id_' + key).next().text(value[0]);
+                            });
+                        }
+                    }
+                }); 
+            })
         }
     </script>
 {% endblock js %}	

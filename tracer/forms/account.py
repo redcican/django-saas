@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django_redis import get_redis_connection
 import random
 from utils.send_sms import send_sms
+from utils import encrypt
 
 phone_regex = RegexValidator(
        regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
@@ -14,19 +15,33 @@ class RegisterForm(forms.ModelForm):
     
     # mobile_phone = forms.CharField(label='Mobile phone', validators=[
     #                               RegexValidator(r'^(1[3|4|5|6|7|8|9])\d{9}$', 'Malformed phone number'), ])
-
+  
+    password = forms.CharField(label='password', 
+                               min_length=8, 
+                               max_length=16,
+                               error_messages={
+                                   'min_length': 'Password must be at least 8 characters long.', 
+                                   'max_length': 'Password cannot be longer than 16 characters.'
+                                },
+                               widget=forms.PasswordInput())
+    
+    confirm_password = forms.CharField(label='confirm password', 
+                                       min_length=8,
+                                       max_length=16,
+                                       error_messages={
+                                           'min_length': 'Repeated password must be at least 8 characters long.',
+                                           'max_length': 'Repeated password cannot be longer than 16 characters.'
+                                       },
+                                       widget=forms.PasswordInput())
+    
     mobile_phone = forms.CharField(
         validators=[phone_regex], max_length=17, label='Mobile phone')
-  
-    
-    password = forms.CharField(label='password', widget=forms.PasswordInput())
-    
-    confirm_password = forms.CharField(label='confirm password', widget=forms.PasswordInput())
     
     code = forms.CharField(label='code', widget=forms.TextInput())
     
     class Meta:
         model = models.UserInfo
+        # the order of fields in the form is matter, first defined will be firstly verified
         fields = ['username','email','password', 'confirm_password', 'mobile_phone', 'code']
         
     def __init__(self, *args, **kwargs):
@@ -35,7 +50,57 @@ class RegisterForm(forms.ModelForm):
             field.widget.attrs['class'] = 'form-control'
             field.widget.attrs['placeholder'] = 'Please enter %s' % (field.label,)
             
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        exists = models.UserInfo.objects.filter(username=username).exists()
+        if exists:
+            raise ValidationError('Username already exists')
+        return username
+    
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        exists = models.UserInfo.objects.filter(email=email).exists()
+        if exists:
+            raise ValidationError('Email already exists')
+        return email
+    
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        return encrypt.md5(password)
+    
+    def clean_confirm_password(self):
+        password = self.cleaned_data['password']
+        confirm_password = encrypt.md5(self.cleaned_data['confirm_password'])
+        if password != confirm_password:
+            raise ValidationError('Password does not match')
+        return confirm_password
+    
+    def clean_mobile_phone(self):
+        mobile_phone = self.cleaned_data['mobile_phone']
+        exists = models.UserInfo.objects.filter(mobile_phone=mobile_phone).exists()
+        if exists:
+            raise ValidationError('Mobile phone already exists')
+        return mobile_phone
+    
+    def clean_code(self):
+        code = self.cleaned_data['code']
+        mobile_phone = self.cleaned_data.get('mobile_phone')
+        
+        if not mobile_phone:
+            return code
+        
+        conn = get_redis_connection()
+        redis_code = conn.get(mobile_phone)
+        if not redis_code:
+            raise ValidationError('Invalid code or expired, please try again')
+        
+        redis_str_code = redis_code.decode('utf-8')
+        
+        if code.strip() != redis_str_code:
+            raise ValidationError('Invalid code, please try again')
             
+        return code
+    
 class SendSmsForm(forms.Form):
     mobile_phone = forms.CharField(
         validators=[phone_regex], max_length=17, label='Mobile phone')
