@@ -49,3 +49,45 @@ class Transaction(models.Model):
     end_datetime = models.DateTimeField(verbose_name='End Datetime', null=True, blank=True)
     
     create_datetime = models.DateTimeField(verbose_name='Create Datetime', auto_now_add=True)
+    
+    
+class Project(models.Model):
+    
+    COLOR_CHOICES = (
+        (1, '#56b8eb'),
+        (2, '#f28033'),
+        (3, '#ebc656'),
+        (4, '#a2d148'),
+        (5, '#20BFA4'),
+        (6, '#7461c2'),
+        (7, '#20bfa3'),
+        (8, '#f6a739'),
+        (9, '#F538A9'),
+        (10, '#A5D6A7'),
+        )
+    
+    name = models.CharField(verbose_name='Project Name', max_length=128)
+    color = models.SmallIntegerField(verbose_name='Color', default=1, choices=COLOR_CHOICES)
+    description= models.CharField(verbose_name='Project Description', max_length=255, null=True, blank=True)
+    use_space = models.IntegerField(verbose_name='Used Space (M)', default=0)
+    star = models.BooleanField(verbose_name='Star', default=False)
+    
+    # bucket = models.CharField(verbose_name='Bucket Name', max_length=128) # cloud storage bucket name
+    # region = models.CharField(verbose_name='Region', max_length=32) # cloud storage region
+    
+    join_count = models.IntegerField(verbose_name='Join Member Count', default=1)
+    creator = models.ForeignKey(to='UserInfo', verbose_name='Creator', on_delete=models.CASCADE)
+    create_datetime = models.DateTimeField(verbose_name='Create Datetime', auto_now_add=True)
+    
+    
+class ProjectUser(models.Model):
+    """Project member"""
+    user = models.ForeignKey(to='UserInfo', verbose_name='User', on_delete=models.CASCADE, related_name='projects')
+    project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
+    
+    # invitee = models.ForeignKey(to='UserInfo', verbose_name='Invitee', on_delete=models.CASCADE, null=True, blank=True,
+    #                             related_name='invitees')
+    
+    star = models.BooleanField(verbose_name='Star', default=False)
+    
+    create_datetime = models.DateTimeField(verbose_name='Join Datetime', auto_now_add=True)
