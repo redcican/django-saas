@@ -37,8 +37,13 @@ def login_sms(request):
     
     form = LoginSmsForm(data=request.POST)
     if form.is_valid():
-        # user = form.cleaned_data['mobile_phone']
-        # put user info to session -- TODO
+        mobile_phone = form.cleaned_data['mobile_phone']
+        
+        # write the user name into session
+        user_object = models.UserInfo.objects.filter(mobile_phone=mobile_phone).first()
+        request.session['user_id'] = user_object.id
+        request.session.set_expiry(60 * 60 * 24 * 14)
+        # return redirect('tracer:index')
         return JsonResponse({'status': True, 'data': '/index/'})
     
     return JsonResponse({'status': False, 'errors': form.errors})
@@ -59,7 +64,9 @@ def login(request):
         user_object = models.UserInfo.objects.filter(Q(mobile_phone=email_or_phone) | Q(email=email_or_phone)).filter(password=password).first()
         
         if user_object:
-            return redirect('index')
+            request.session['user_id'] = user_object.id
+            request.session.set_expiry(60 * 60 * 24 * 14)
+            return redirect('tracer:index')
         form.add_error('email_or_phone', 'Invalid username or password')
 
     return render(request, 'login.html', {'form': form})
@@ -78,3 +85,10 @@ def image_code(request):
     stream = BytesIO()
     image_object.save(stream, 'png')
     return HttpResponse(stream.getvalue())
+
+def logout(request):
+    """
+    logout
+    """
+    request.session.flush()
+    return redirect('tracer:index')

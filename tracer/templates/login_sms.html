@@ -57,7 +57,7 @@
             <button id="btnSubmit" type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
             <div class="row align-items-end">
                   <div class="col">
-                                  <p class="middle fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="{% url 'tracer:register' %}"
+                  <p class="middle fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="{% url 'tracer:register' %}"
                 class="link-info">Register</a></p>
                   </div>
                   <div class="col-auto">
@@ -144,7 +144,7 @@
                     dataType: 'JSON',
                     success: function(res) {
                         if(res.status){
-                            window.location.href = res.data;
+                            location.href = res.data;
                         }else{
                             $.each(res.errors, function(key, value) {
                                 $('#id_' + key).next().text(value[0]);
