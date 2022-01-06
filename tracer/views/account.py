@@ -4,7 +4,8 @@ from tracer import models
 from tracer.forms.account import LoginForm, RegisterForm, SendSmsForm, LoginSmsForm
 from utils.image_code import generate_image_code
 from io import BytesIO
-
+import uuid
+import datetime
 
 def register(request):
     if request.method == 'GET':
@@ -13,7 +14,20 @@ def register(request):
     
     form = RegisterForm(data=request.POST)
     if form.is_valid():
-        form.save()
+        instance = form.save()
+        policy_object = models.PricePolicy.objects.filter(
+            category=1, title='Personal Free').first()
+        
+        # 创建默认交易记录，当创建用户时自动创建
+        models.Transaction.objects.create(
+            status=2,
+            order=str(uuid.uuid4()),
+            user=instance, 
+            price_policy=policy_object,
+            count = 0,
+            price = 0,
+            start_datetime = datetime.datetime.now()
+        )
         return JsonResponse({'status': True, 'data': '/login/'})
     
     return JsonResponse({'status': False, 'errors': form.errors})

@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{% block title %}{% endblock title %}</title>
+    <link
+      rel="stylesheet"
+      href="{% static 'plugin/bootstrap/css/bootstrap.min.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'plugin/fontawesome-6/css/fontawesome.min.css' %}"
+    />
+    <link rel="stylesheet" href="{% static 'plugin/fontawesome-6/css/all.min.css' %}">
+
+    {% block css %}{% endblock css %}
+  </head>
+  <body>
+    <!--navbar-->
+{% comment %} <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container py-2">
+<a class="navbar-brand" href="{% url 'tracer:project_list' %}">Tracer</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                Project
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+            </li>
+        <ul>
+
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="#">Workspace</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Calendar</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="far fa-bell"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="far fa-question-circle"></i></a></li>
+            {% if request.tracer %}
+                <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{request.tracer.username}}
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'tracer:index' %}">Homepage</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{%  url 'tracer:logout' %}">Sign out</a></li>
+                </ul>
+                </li>
+            {% else %}
+                <li class="nav-item px-2">
+                <a class="btn btn-primary" href="{% url 'tracer:login' %}">Sign In</a>
+                </li>
+                <li class="nav-item">
+                <a class="btn btn-outline-secondary" href="{% url 'tracer:register' %}">Sign Up</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div> 
+
+  </div>
+</nav> {% endcomment %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container py-2">
+    <a class="navbar-brand" href="{% url 'tracer:project_list' %}">Tracer</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Project
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+      <li class="nav-item mx-2"><a class="nav-link" href="#">Workspace</a></li>
+            <li class="nav-item mx-2"><a class="nav-link" href="#">Calendar</a></li>
+            <li class="nav-item mx-2"><a class="nav-link" href="#"><i class="far fa-bell"></i></a></li>
+            <li class="nav-item mx-2"><a class="nav-link" href="#"><i class="far fa-question-circle"></i></a></li>
+            {% if request.tracer %}
+                <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{request.tracer.username}}
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'tracer:index' %}">Homepage</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{%  url 'tracer:logout' %}">Sign out</a></li>
+                </ul>
+                </li>
+            {% else %}
+                <li class="nav-item px-2">
+                <a class="btn btn-primary" href="{% url 'tracer:login' %}">Sign In</a>
+                </li>
+                <li class="nav-item">
+                <a class="btn btn-outline-secondary" href="{% url 'tracer:register' %}">Sign Up</a>
+                </li>
+            {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'plugin/bootstrap/js/bootstrap.min.js' %}"></script>
+
+    {% block js %}{% endblock js %}
+  </body>
+</html>

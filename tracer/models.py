@@ -17,7 +17,7 @@ class PricePolicy(models.Model):
         (2, 'Charge'),
         (3, 'Other')
     )
-    category = models.SmallIntegerField(verbose_name='Charge Type', default=2, choices=category_choices)
+    category = models.SmallIntegerField(verbose_name='Charge Type', default=1, choices=category_choices)
     title = models.CharField(verbose_name='Title', max_length=32)
     price = models.PositiveIntegerField(verbose_name='Price')
     
@@ -37,7 +37,7 @@ class Transaction(models.Model):
     
     status = models.SmallIntegerField(verbose_name='Status', choices=status_choices)
     
-    order = models.CharField(verbose_name='Order Number', max_length=128, unique=True)
+    order = models.CharField(verbose_name='Order Number', max_length=64, unique=True)
     user = models.ForeignKey(to='UserInfo', verbose_name='User', on_delete=models.CASCADE)
     price_policy = models.ForeignKey(to='PricePolicy', verbose_name='Price Policy', on_delete=models.CASCADE)
     
