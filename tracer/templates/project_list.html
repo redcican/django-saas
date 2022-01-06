@@ -5,11 +5,68 @@
         .project{
             margin-top: 10px
         }
+
     </style>
 {% endblock css %}
 
 {% block content %}
     <div class="container-fluid project">
-        <a class="btn btn-outline-primary btn-lg rounded-pill"><i class="fas fa-plus-circle"></i> New Project</a>
+        <a class="btn btn-outline-primary btn-lg rounded-pill" data-bs-toggle="modal" data-bs-target="#modal"><i class="fas fa-plus-circle"></i> New Project</a>
     </div>
+
+    <!-- Modal -->
+<div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create A New Project</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addForm">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+                {{ field }}
+                <span class="error-msg"></span>
+            </div>
+            {% endfor %}
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button id="btnSubmit" type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
+
+{% block js %}
+    <script>
+        $(function(){
+            bindSubmit();
+        });
+
+        function bindSubmit(){
+            $('#btnSubmit').click(function(){
+                $.ajax({
+                    url:"{% url 'tracer:project_list' %}",
+                    type: 'POST',
+                    data: $('#addForm').serialize(),
+                    dataType: 'JSON',
+                    success: function(res){
+                        if(res.status){
+                           location.href = location.href
+                    }else{
+                        $.each(res.errors, function(key, value) {
+                                $('#id_' + key).next().text(value[0]);
+                            });
+                    }
+                }
+            });
+        })
+    }
+    </script>
+{% endblock js %}

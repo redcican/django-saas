@@ -66,9 +66,9 @@ class Project(models.Model):
         (10, '#A5D6A7'),
         )
     
-    name = models.CharField(verbose_name='Project Name', max_length=128)
+    name = models.CharField(verbose_name='Name', max_length=128)
     color = models.SmallIntegerField(verbose_name='Color', default=1, choices=COLOR_CHOICES)
-    description= models.CharField(verbose_name='Project Description', max_length=255, null=True, blank=True)
+    description= models.CharField(verbose_name='Description', max_length=255, null=True, blank=True)
     use_space = models.IntegerField(verbose_name='Used Space (M)', default=0)
     star = models.BooleanField(verbose_name='Star', default=False)
     
