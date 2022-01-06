@@ -160,3 +160,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+
+# white list: can be accessed without login
+WHITE_REGEX_URL_LIST = [
+    "/register/",
+    "/login/",
+    "/login/sms/",
+    "/image/code/",
+    "/send/sms/",
+    "/index/",
+]

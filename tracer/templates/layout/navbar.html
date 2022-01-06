@@ -22,10 +22,10 @@
         </li>
       </ul>
       <ul class="navbar-nav ms-auto">
-      {% if request.tracer %}
+      {% if request.tracer.user %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            {{request.tracer.username}}
+            {{request.tracer.user.username}}
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="{% url 'tracer:project_list' %}">Settings</a></li>

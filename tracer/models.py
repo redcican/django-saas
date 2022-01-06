@@ -14,10 +14,10 @@ class UserInfo(models.Model):
 class PricePolicy(models.Model):
     category_choices = (
         (1, 'Free'),
-        (2, 'Charge'),
+        (2, 'Pay'),
         (3, 'Other')
     )
-    category = models.SmallIntegerField(verbose_name='Charge Type', default=1, choices=category_choices)
+    category = models.SmallIntegerField(verbose_name='Pay Type', default=1, choices=category_choices)
     title = models.CharField(verbose_name='Title', max_length=32)
     price = models.PositiveIntegerField(verbose_name='Price')
     
