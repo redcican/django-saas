@@ -1,12 +1,19 @@
 from django import forms
 from tracer.forms.bootstrap import BootstrapForm
 from tracer import models
+from tracer.forms.widgets import ColorRadioSelect
 
 class ProjectModelForm(BootstrapForm, forms.ModelForm):
+    
+    bootstrap_class_exclude = ['color']  # 重写color字段, 可以自定义样式
+    
     description = forms.CharField(widget=forms.Textarea, required=False, label='Description')
     class Meta:
         model = models.Project
         fields = ['name', 'color', 'description']
+        widgets = {
+            'color': ColorRadioSelect(attrs={'class': 'color-radio'}),
+        }
         
     def __init__(self, request, *args, **kwargs):
         super().__init__(*args, **kwargs)
