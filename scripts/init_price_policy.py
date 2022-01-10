@@ -1,5 +1,4 @@
 
-import base
 from tracer import models
 
 def run():
