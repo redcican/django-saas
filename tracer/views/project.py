@@ -41,7 +41,7 @@ def project_list(request):
     return JsonResponse({'status': False, 'errors': form.errors})
 
 
-def project_star(request, project_type, project_id):
+def project_star(request, project_type:str, project_id:int) -> HttpResponse:
     """添加项目的星标
 
     Args:
@@ -60,7 +60,7 @@ def project_star(request, project_type, project_id):
     return HttpResponse('Request Failed')
 
 
-def project_unstar(request, project_type, project_id):
+def project_unstar(request, project_type:str, project_id:int) -> HttpResponse:
     """去除项目的星标
 
     Args:
