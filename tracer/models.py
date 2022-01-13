@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class UserInfo(models.Model):
     username = models.CharField(verbose_name='Username', max_length=100,unique=True, db_index=True)
@@ -97,6 +98,7 @@ class Wiki(models.Model):
     project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
     title = models.CharField(verbose_name='Title', max_length=128)
     content = models.TextField(verbose_name='Content')
+    # content = MDTextField(verbose_name='Content')
     # create_datetime = models.DateTimeField(verbose_name='Create Datetime', auto_now_add=True)
     
     depth = models.IntegerField(verbose_name='Depth', default=1)

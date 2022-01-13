@@ -1,5 +1,7 @@
 from django.urls import path, re_path
 from django.urls.conf import include
+from django.conf import settings
+from django.conf.urls.static import static
 
 from .views import account
 from .views import home
@@ -32,9 +34,13 @@ urlpatterns = [
             re_path('wiki/$',wiki.wiki, name='wiki'),
             re_path('wiki/add/$',wiki.wiki_add, name='wiki_add'),
             re_path('wiki/catalog/$', wiki.wiki_catalog, name='wiki_catalog'),
+            re_path('wiki/delete/(?P<wiki_id>\d+)/$', wiki.wiki_delete, name='wiki_delete'),
+            re_path('wiki/edit/(?P<wiki_id>\d+)/$', wiki.wiki_edit, name='wiki_edit'),
             re_path('setting/$',manage.setting, name='setting'),
     ])),
 ]
+
+    
 
 ''''
     # project manage

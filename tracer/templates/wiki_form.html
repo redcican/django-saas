@@ -1,0 +1,141 @@
+{% extends 'layout/manage.html' %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
+
+    <style>
+
+        .card {
+            margin-top: 20px;
+        }
+        .card .card-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .card-body{
+            padding: 0;
+        }
+        .title-list {
+            border-right: 1px solid #ddd;
+            min-height: 600px;
+        }
+        .content {
+            border-left: 1px solid #ddd;
+            min-height: 700px;
+            margin-left: -1px;
+        }
+        a {
+            text-decoration: none;
+        }
+        .function {
+            margin-top: 20px;
+        }
+        .error-msg {
+            color:red;
+            position: absolute;
+            font-size: 12px;
+        }
+    </style>
+{% endblock css %}
+{% block content %}
+    {% comment %} wiki add and edit {% endcomment %}
+    <div class="container-fluid">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <i class="fas fa-book" aria-hidden="true"></i> Wiki Documentation
+            </div>
+            <div>
+                <a type="button" class="btn btn-success btn-sm" 
+                    href="{% url 'tracer:wiki_add' project_id=request.tracer.project.id %}">
+                    <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                    New wiki
+                </a>
+            </div>
+            </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3 title-list"  style="margin-top: 20px">
+                    <ul id="catalog">
+
+                    </ul>              
+                </div>
+
+                <div class="col-sm-9 content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            {% if field.name == "content" %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                <div id="editor">
+                                    {{ field }}
+                                </div>
+                                <span class="error-msg">{{ field.errors.0 }}</span>
+                            </div>
+                            {% else %} 
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{  field }}
+                                <span class="error-msg">{{ field.errors.0 }}</span>
+                            </div>
+                           {% endif %}
+                        {% endfor %} 
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
+<script>
+
+    var WIKI_DETAIL_URL = "{% url 'tracer:wiki' project_id=request.tracer.project.id %}";
+
+    $( function () {
+        initCatalog();
+        initEditorMd();
+    });
+    /**
+     * 初始化MDEditor
+     */
+    function initEditorMd(){
+        editormd('editor',{
+            height: 500,
+            placeholder: "Write your content here",
+            path: "{% static 'plugin/editor-md/lib/' %}",
+        })
+    }
+
+    function initCatalog() {
+        $.ajax({
+            url: '{% url 'tracer:wiki_catalog' project_id=request.tracer.project.id %}',
+            type: 'GET',
+            dataType: 'JSON',
+            success: function(res) {
+                if(res.status){
+                    $.each(res.data, function (index, item){
+                        
+                        var href = WIKI_DETAIL_URL + '?wiki_id=' + item.id;
+
+                        var li = $("<li>").attr('id', "id_" + item.id).append($("<a>").text(item.title).attr('href',href)).append($("<ul>"));
+
+                        if(!item.parent_id){                           
+                            $("#catalog").append(li);
+                        }else {
+                            $("#id_" + item.parent_id).children("ul").append(li);
+                        }
+                    })
+                }else{
+                    alert("Wiki Catalog initialized failed!");
+                }
+            }
+        });
+        }
+</script>
+{% endblock js %}

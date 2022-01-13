@@ -1,5 +1,4 @@
 {% extends 'layout/manage.html' %}
-
 {% block css %}
     <style>
         .card {
@@ -42,8 +41,21 @@
                 <a type="button" class="btn btn-success btn-sm" 
                     href="{% url 'tracer:wiki_add' project_id=request.tracer.project.id %}">
                     <i class="fas fa-plus-circle" aria-hidden="true"></i>
-                    New wiki
+                    Create
                 </a>
+                {% if wiki_object %}
+                <a type="button" class="btn btn-primary btn-sm" 
+                    href="{% url 'tracer:wiki_edit' project_id=request.tracer.project.id wiki_id=wiki_object.id %}">
+                    <i class="far fa-edit" aria-hidden="true"></i>
+                    Eidt
+                </a>
+                <a type="button" class="btn btn-danger btn-sm" 
+                    href="{% url 'tracer:wiki_delete' project_id=request.tracer.project.id wiki_id=wiki_object.id %}">
+                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                    Delete
+                </a>
+
+                {% endif %}
             </div>
             </div>
         <div class="card-body">
@@ -55,7 +67,7 @@
 
                 <div class="col-sm-9 content">
                     {% if wiki_object %}
-                        {{  wiki_object.content}}
+                        {{  wiki_object.content }}
                     
                     {% else %}
                         <div style="text-align:center; margin-top: 50px">
@@ -73,6 +85,7 @@
 {% endblock content %}
 
 {% block js %}
+
 <script>
 
     var WIKI_DETAIL_URL = "{% url 'tracer:wiki' project_id=request.tracer.project.id %}";

@@ -25,7 +25,7 @@ def wiki_add(request, project_id):
     """add wiki"""
     if request.method == 'GET':
         form = WikiModelForm(request)
-        return render(request, 'wiki_add.html', {'form': form})
+        return render(request, 'wiki_form.html', {'form': form})
     
     form = WikiModelForm(request, data=request.POST)
     if form.is_valid:
@@ -41,7 +41,7 @@ def wiki_add(request, project_id):
         url = reverse('tracer:wiki', kwargs={'project_id': project_id})
         return redirect(url)
     
-    return render(request, 'wiki_add.html', {'errors': form.errors})
+    return render(request, 'wiki_form.html', {'form': form})
 
 
 def wiki_catalog(request, project_id):
@@ -49,3 +49,36 @@ def wiki_catalog(request, project_id):
     data = models.Wiki.objects.filter(
         project_id=project_id).values('id', 'title', 'parent_id').order_by('depth', 'id')
     return JsonResponse({'status': True, 'data': list(data)})
+
+
+def wiki_delete(request, project_id, wiki_id):
+    """Delete a wiki """
+    models.Wiki.objects.filter(id=wiki_id, project_id=project_id).delete()
+    url = reverse('tracer:wiki', kwargs={'project_id': project_id})
+    return redirect(url)
+
+def wiki_edit(request, project_id, wiki_id):
+    """Edit a wiki"""
+    wiki_object = models.Wiki.objects.filter(id=wiki_id, project_id=project_id).first()
+    if not wiki_object:
+        url = reverse('tracer:wiki', kwargs={'project_id': project_id})
+        return redirect(url)
+    
+    if request.method == 'GET':
+        form = WikiModelForm(request, instance=wiki_object)
+        return render(request, 'wiki_form.html', {'form': form})
+    
+    form = WikiModelForm(request, data=request.POST, instance=wiki_object)
+    if form.is_valid():
+        
+        if form.instance.parent:
+            form.instance.depth = form.instance.parent.depth + 1
+        else:
+            form.instance.depth = 1
+        
+        form.save()
+        url = reverse('tracer:wiki', kwargs={'project_id': project_id})
+        preview_url = "{0}?wiki_id={1}".format(url, wiki_id)
+        return redirect(preview_url)
+    return render(request, 'wiki_form.html', {form: form})
+    
