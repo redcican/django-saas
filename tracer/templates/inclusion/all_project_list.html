@@ -1,4 +1,3 @@
-<ul class="navbar-nav me-auto mb-2 mb-lg-0">
   <li class="nav-item dropdown">
     <a
       class="nav-link dropdown-toggle"
@@ -8,21 +7,23 @@
       data-bs-toggle="dropdown"
       aria-expanded="false"
     >
-      Project
+      Project  {% if request.tracer.project %}({{request.tracer.project.name}}){% endif %}
     </a>
     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
       {% if my_project %}
-      <li style="color: #0D6EFD"><i class="fas fa-list"></i> My projects</li>
+      <li style="color: #0D6EFD"><i class="fas fa-list">
+
+      </i> My projects</li>
 
       {% for item in my_project %}
-      <li><a class="dropdown-item" href="#">{{item.name}}</a></li>
+      <li><a class="dropdown-item" href="{% url 'tracer:dashboard' project_id=item.id %}">{{item.name}}</a></li>
       {% endfor %} {% endif %} {% if join_project %}
 
       <li><hr class="dropdown-divider" /></li>
       
       <li style="color: #0D6EFD"><i class="far fa-handshake"></i> Join projects</li>
       {% for item in join_project %}
-      <li><a class="dropdown-item" href="#">{{item.project.name}}</a></li>
+      <li><a class="dropdown-item" href="{% url 'tracer:dashboard' project_id=item.project.id %}">{{item.project.name}}</a></li>
       {% endfor %} {% endif %}
       
       <li><hr class="dropdown-divider" /></li>
@@ -30,4 +31,4 @@
       <li><a class="dropdown-item" href="{% url 'tracer:project_list' %}">All projects</a></li>
     </ul>
   </li>
-</ul>
+

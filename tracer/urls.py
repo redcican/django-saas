@@ -5,6 +5,7 @@ from .views import account
 from .views import home
 from .views import project
 from .views import manage
+from .views import wiki
 
 app_name = 'tracer'
 
@@ -28,9 +29,11 @@ urlpatterns = [
             re_path('issues/$',manage.issues, name='issues'),
             re_path('statistics/$', manage.statistics, name='statistics'),
             re_path('file/$',manage.file, name='file'),
-            re_path('wiki/$',manage.wiki, name='wiki'),
+            re_path('wiki/$',wiki.wiki, name='wiki'),
+            re_path('wiki/add/$',wiki.wiki_add, name='wiki_add'),
+            re_path('wiki/catalog/$', wiki.wiki_catalog, name='wiki_catalog'),
             re_path('setting/$',manage.setting, name='setting'),
-    ]))
+    ])),
 ]
 
 ''''

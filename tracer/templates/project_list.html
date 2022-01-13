@@ -1,5 +1,16 @@
 {% extends 'layout/manage.html' %} {% block css %}
 <style>
+          .navbar-dark .navbar-nav .nav-link {
+              color: rgba(255, 255, 255, 1);
+            }
+
+            .nav-link:hover,
+            .nav-link:active {
+              border-bottom: 2px solid #fff;
+            }
+            li.active {
+              border-bottom: 2px solid #fff;
+            }
   .project {
     margin-top: 10px;
   }
@@ -88,7 +99,7 @@
       {% for item in project_dict.star_project %}
       <div class="item">
         <a
-          href="#"
+          href="{% url 'tracer:dashboard' project_id=item.value.id %}"
           class="title"
           style="background-color:{{item.value.get_color_display}}"
           >{{item.value.name}}</a
@@ -120,7 +131,7 @@
       {% for item in project_dict.my_project %}
       <div class="item">
         <a
-          href="#"
+          href="{% url 'tracer:dashboard' project_id=item.id %}"
           class="title"
           style="background-color:{{item.get_color_display}}"
           >{{item.name}}</a
@@ -154,7 +165,7 @@
       {% for item in project_dict.join_project %}
       <div class="item">
         <a
-          href="{% url 'tracer:project_star' project_type='join_project' project_id=item.id %}"
+          href="{% url 'tracer:dashboard' project_id=item.id %}"
           class="title"
           style="background-color:{{item.get_color_display}}"
           >{{item.name}}</a
@@ -162,7 +173,7 @@
 
         <div class="info">
           <div>
-            <a href="#">
+            <a href="{% url 'tracer:project_star' project_type='join_project' project_id=item.id %}">
               <i
                 class="fas fa-star"
                 aria-hidden="true"

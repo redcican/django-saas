@@ -1,0 +1,86 @@
+{% extends 'layout/manage.html' %}
+
+{% block css %}
+    <style>
+      {% comment %} .navbar-dark .navbar-nav .nav-link {
+          color: rgba(255, 255, 255, 1);
+        }
+
+        .nav-link:hover,
+        .nav-link:active {
+          border-bottom: 2px solid #fff;
+        }
+        li.active {
+          border-bottom: 2px solid #fff;
+        } {% endcomment %}
+        .card {
+            margin-top: 20px;
+        }
+        .card .card-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .card-body{
+            padding: 0;
+        }
+        .title-list {
+            border-right: 1px solid #ddd;
+            min-height: 600px;
+        }
+        .content {
+            border-left: 1px solid #ddd;
+            min-height: 700px;
+            margin-left: -1px;
+        }
+        a {
+            text-decoration: none;
+        }
+        .function {
+            margin-top: 20px;
+        }
+        .error-msg {
+            color:red;
+            position: absolute;
+            font-size: 12px;
+        }
+    </style>
+{% endblock css %}
+{% block content %}
+    <div class="container-fluid">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <i class="fas fa-book" aria-hidden="true"></i> Wiki Documentation
+            </div>
+            <div>
+                <a type="button" class="btn btn-success btn-sm" 
+                    href="{% url 'tracer:wiki_add' project_id=request.tracer.project.id %}">
+                    <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                    New wiki
+                </a>
+            </div>
+            </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3 title-list"  style="margin-top: 20px">
+                    <div>Table of Content</div>                
+                </div>
+
+                <div class="col-sm-9 content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{  field }}
+                                <span class="error-msg">{{ field.errors.0 }}</span>
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

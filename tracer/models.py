@@ -91,3 +91,19 @@ class ProjectUser(models.Model):
     star = models.BooleanField(verbose_name='Star', default=False)
     
     create_datetime = models.DateTimeField(verbose_name='Join Datetime', auto_now_add=True)
+    
+    
+class Wiki(models.Model):
+    project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
+    title = models.CharField(verbose_name='Title', max_length=128)
+    content = models.TextField(verbose_name='Content')
+    # create_datetime = models.DateTimeField(verbose_name='Create Datetime', auto_now_add=True)
+    
+    depth = models.IntegerField(verbose_name='Depth', default=1)
+    
+    # 子关联
+    parent = models.ForeignKey(to='self', verbose_name='Parent Article', 
+                               on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    
+    def __str__(self):
+        return self.title

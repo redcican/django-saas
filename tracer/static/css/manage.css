@@ -60,6 +60,18 @@ body {
 
 }
 
+/* customize style */
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 1);
+}
+.navbar-dark .navbar-nav .nav-link>li>a:hover,
+.nav-link.active>a {
+    border-bottom: 2px solid #fff;
+}
+li.active {
+    border-bottom: 2px solid #fff;
+}
+
 .navbar-av .navbar-nav>li>a:hover,
 .navbar-av .navbar-nav>li>a:focus {
     color: #ffffff;
@@ -170,4 +182,4 @@ fieldset[disabled] .navbar-av .btn-link:focus {
 .dropdown-menu>li {
     padding: 0 5px;
     color: black;
-}
+} 

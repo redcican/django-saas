@@ -14,10 +14,5 @@ def statistics(request, project_id):
 def file(request, project_id):
     return render(request, 'dashboard.html')
 
-
-def wiki(request, project_id):
-    return render(request, 'dashboard.html')
-
-
 def setting(request, project_id):
     return render(request, 'dashboard.html')

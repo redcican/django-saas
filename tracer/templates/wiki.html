@@ -1,0 +1,110 @@
+{% extends 'layout/manage.html' %}
+
+{% block css %}
+    <style>
+        .card {
+            margin-top: 20px;
+        }
+        .card .card-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .card-body{
+            padding: 0;
+        }
+        .title-list {
+            border-right: 1px solid #ddd;
+            min-height: 600px;
+        }
+
+        .content {
+            border-left: 1px solid #ddd;
+            min-height: 700px;
+            margin-left: -1px;
+        }
+        a {
+            text-decoration: none;
+        }
+        .function {
+            margin-top: 20px;
+        }
+    </style>
+{% endblock css %}
+{% block content %}
+    <div class="container-fluid">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <i class="fas fa-book" aria-hidden="true"></i> Wiki Documentation
+            </div>
+            <div>
+                <a type="button" class="btn btn-success btn-sm" 
+                    href="{% url 'tracer:wiki_add' project_id=request.tracer.project.id %}">
+                    <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                    New wiki
+                </a>
+            </div>
+            </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3 title-list" style="margin-top: 20px">
+                    <ul id="catalog">
+                    </ul>           
+                </div>
+
+                <div class="col-sm-9 content">
+                    {% if wiki_object %}
+                        {{  wiki_object.content}}
+                    
+                    {% else %}
+                        <div style="text-align:center; margin-top: 50px">
+                            <h4>{{ request.tracer.project.name }} Wiki</h4>
+                            <a href="{% url 'tracer:wiki_add' project_id=request.tracer.project.id %}">
+                                <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                                Add New Wiki
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block js %}
+<script>
+
+    var WIKI_DETAIL_URL = "{% url 'tracer:wiki' project_id=request.tracer.project.id %}";
+
+    $( function () {
+        initCatalog();
+    });
+
+    function initCatalog() {
+        $.ajax({
+            url: '{% url 'tracer:wiki_catalog' project_id=request.tracer.project.id %}',
+            type: 'GET',
+            dataType: 'JSON',
+            success: function(res) {
+                if(res.status){
+                    $.each(res.data, function (index, item){
+                        
+                        var href = WIKI_DETAIL_URL + '?wiki_id=' + item.id;
+
+                        var li = $("<li>").attr('id', "id_" + item.id).append($("<a>").text(item.title).attr('href',href)).append($("<ul>"));
+
+                        if(!item.parent_id){                           
+                            $("#catalog").append(li);
+                        }else {
+                            $("#id_" + item.parent_id).children("ul").append(li);
+                        }
+                    })
+                }else{
+                    alert("Wiki Catalog initialized failed!");
+                }
+            }
+        });
+        }
+</script>
+{% endblock js %}
