@@ -73,8 +73,8 @@ class Project(models.Model):
     use_space = models.IntegerField(verbose_name='Used Space (M)', default=0)
     star = models.BooleanField(verbose_name='Star', default=False)
     
-    # bucket = models.CharField(verbose_name='Bucket Name', max_length=128) # cloud storage bucket name
-    # region = models.CharField(verbose_name='Region', max_length=32) # cloud storage region
+    bucket = models.CharField(verbose_name='COS Bucket Name', max_length=128) # tencent cos cloud storage bucket name
+    region = models.CharField(verbose_name='COS Region', max_length=32) # tencent cos cloud storage region
     
     join_count = models.IntegerField(verbose_name='Join Member Count', default=1)
     creator = models.ForeignKey(to='UserInfo', verbose_name='Creator', on_delete=models.CASCADE)

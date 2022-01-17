@@ -1,4 +1,3 @@
-import os
 from twilio.rest import Client
 from django.conf import settings
 

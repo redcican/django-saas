@@ -2,6 +2,8 @@ from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from tracer import models
 from tracer.forms.project import ProjectModelForm
+from utils.tencent_cos import create_bucket
+import time
 
 def project_list(request):
     # GET请求，查看项目
@@ -32,9 +34,21 @@ def project_list(request):
         
         form = ProjectModelForm(request)       
         return render(request, 'project_list.html', {'form': form, "project_dict": project_dict})
+    
     # POST请求，创建项目, 通过ajax提交
     form = ProjectModelForm(request, data=request.POST)
     if form.is_valid():
+        project_name = form.cleaned_data['name'].replace(' ', '')
+        # 为项目创建一个Tencent COS Bucket: {phone_number}-{timestamp}-{bucket_prefix}
+        mobile_phone = request.tracer.user.mobile_phone.replace('+', '')
+        bucket = "{}-{}-{}-1308621155".format(project_name, mobile_phone, str(int(time.time()*1000)))
+        region = 'ap-shanghai'
+        
+        create_bucket(bucket, region)
+        
+        # 把桶和区域信息保存到数据库
+        form.instance.bucket = bucket
+        form.instance.region = region
         form.instance.creator = request.tracer.user
         form.save()
         return JsonResponse({'status': True})
