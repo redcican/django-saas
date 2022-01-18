@@ -1,8 +1,12 @@
-from django.http.response import HttpResponse, JsonResponse
+from django.http.response import JsonResponse
 from django.shortcuts import redirect, render, reverse
 from tracer import models
+from django.views.decorators.csrf import csrf_exempt
+
 
 from tracer.forms.wiki import WikiModelForm
+from utils.encrypt import uid
+from utils.tencent_cos import upload_buffer_file
 
 
 def wiki(request, project_id):
@@ -81,4 +85,30 @@ def wiki_edit(request, project_id, wiki_id):
         preview_url = "{0}?wiki_id={1}".format(url, wiki_id)
         return redirect(preview_url)
     return render(request, 'wiki_form.html', {form: form})
+    
+@csrf_exempt
+def wiki_upload(request, project_id):
+    """upload wiki image to tencent cos"""
+    result = {'success': 0, 'message': '', 'url': None}
+    
+    image_object = request.FILES.get('editormd-image-file')
+    
+    if not image_object:
+        result['message'] = 'no image file'
+        return JsonResponse(result)
+    
+    extension = image_object.name.rsplit('.')[-1]
+    key = f"{uid(request.tracer.user.mobile_phone)}.{extension}"
+    
+    image_url = upload_buffer_file(
+        bucket=request.tracer.project.bucket,
+        file_object=image_object,
+        key=key
+    )
+    
+    result['success'] = 1
+    result['url'] = image_url
+    
+    return JsonResponse(result)
+    
     

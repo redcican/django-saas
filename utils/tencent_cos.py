@@ -1,8 +1,7 @@
 # -*- coding=utf-8
+from django.test import client
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
-import sys
-import logging
 from django.conf import settings
 
 # 正常情况日志级别使用INFO，需要定位时可以修改为DEBUG，此时SDK会打印和服务端的通信信息
@@ -30,4 +29,27 @@ def create_bucket(bucket: str, region: str='ap-shanghai'):
     
     client.create_bucket(
         Bucket=bucket,
+        ACL='public-read',
     )
+
+
+def upload_buffer_file(bucket: str, file_object, key, region: str = 'ap-shanghai'):
+    
+    config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
+    client = CosS3Client(config)
+    
+    client.upload_file_from_buffer(
+        Bucket=bucket,
+        Body = file_object,
+        Key= key,
+    )
+    
+    image_url = client.get_object_url(
+        Bucket=bucket,
+        Key=key
+    )
+    
+    return image_url
+    
+    
+    

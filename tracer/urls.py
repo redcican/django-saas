@@ -36,18 +36,7 @@ urlpatterns = [
             re_path('wiki/catalog/$', wiki.wiki_catalog, name='wiki_catalog'),
             re_path('wiki/delete/(?P<wiki_id>\d+)/$', wiki.wiki_delete, name='wiki_delete'),
             re_path('wiki/edit/(?P<wiki_id>\d+)/$', wiki.wiki_edit, name='wiki_edit'),
+            re_path('wiki/upload/$', wiki.wiki_upload, name='wiki_upload'), # upload image to wiki
             re_path('setting/$',manage.setting, name='setting'),
     ])),
 ]
-
-    
-
-''''
-    # project manage
-    re_path('manage/(?P<project_id>\d+)/dashboard/$', project.dashboard, name='project_dashboard'),
-    re_path('manage/(?P<project_id>\d+)/issues/$', project.issues, name='project_issues'),
-    re_path('manage/(?P<project_id>\d+)/statistics/$',project.statistics, name='project_dstatistics'),
-    re_path('manage/(?P<project_id>\d+)/file/$', project.file, name='project_file'),
-    re_path('manage/(?P<project_id>\d+)/wiki/$', project.wiki, name='project_wiki'),
-    re_path('manage/(?P<project_id>\d+)/setting/$', project.setting, name='project_seting'),
-'''
