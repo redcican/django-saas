@@ -1,13 +1,8 @@
 from django.urls import path, re_path
 from django.urls.conf import include
-from django.conf import settings
-from django.conf.urls.static import static
 
-from .views import account
-from .views import home
-from .views import project
-from .views import manage
-from .views import wiki
+from .views import (account, home, project, manage, wiki, file)
+
 
 app_name = 'tracer'
 
@@ -29,14 +24,18 @@ urlpatterns = [
     re_path('manage/(?P<project_id>\d+)/', include([
             re_path('dashboard/$',manage.dashboard, name='dashboard'),
             re_path('issues/$',manage.issues, name='issues'),
-            re_path('statistics/$', manage.statistics, name='statistics'),
-            re_path('file/$',manage.file, name='file'),
+            re_path('statistics/$', manage.statistics, name='statistics'),            
+            
             re_path('wiki/$',wiki.wiki, name='wiki'),
             re_path('wiki/add/$',wiki.wiki_add, name='wiki_add'),
             re_path('wiki/catalog/$', wiki.wiki_catalog, name='wiki_catalog'),
             re_path('wiki/delete/(?P<wiki_id>\d+)/$', wiki.wiki_delete, name='wiki_delete'),
             re_path('wiki/edit/(?P<wiki_id>\d+)/$', wiki.wiki_edit, name='wiki_edit'),
             re_path('wiki/upload/$', wiki.wiki_upload, name='wiki_upload'), # upload image to wiki
+            
+            
+            re_path('file/$', file.file, name='file'),
+
             re_path('setting/$',manage.setting, name='setting'),
     ])),
 ]

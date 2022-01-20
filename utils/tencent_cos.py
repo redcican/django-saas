@@ -1,5 +1,4 @@
 # -*- coding=utf-8
-from django.test import client
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 from django.conf import settings
@@ -31,9 +30,28 @@ def create_bucket(bucket: str, region: str='ap-shanghai'):
         Bucket=bucket,
         ACL='public-read',
     )
+    
+    # add cors rule
+    cors_config = {
+        'CORSRule': [
+            {
+                'AllowedOrigin': '*',
+                'AllowedMethod': ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
+                'AllowedHeader': '*',
+                'ExposeHeader': '*',
+                'MaxAgeSeconds': 500
+            }
+        ]
+    }
+    
+    client.put_bucket_cors(
+        Bucket=bucket,
+        CORSConfiguration=cors_config
+    )
 
 
 def upload_buffer_file(bucket: str, file_object, key, region: str = 'ap-shanghai'):
+    """upload image to tencent cos"""
     
     config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
     client = CosS3Client(config)

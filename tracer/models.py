@@ -111,3 +111,18 @@ class Wiki(models.Model):
         return self.title
     
     
+class File(models.Model):
+    """File system"""
+    file_type_choices = (
+        (1, 'File'),
+        (2, 'Folder'),
+    )
+    project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
+    name = models.CharField(verbose_name='Name', max_length=128, help_text='File/Folder name')
+    file_type = models.SmallIntegerField(verbose_name='Type', choices=file_type_choices) # 1: file, 2: folder
+    file_size = models.DecimalField(verbose_name='Size', null=True, blank=True,decimal_places=2, max_digits=16)
+    # file_path = models.CharField(verbose_name='File Path', max_length=255, null=True, blank=True)
+    parent = models.ForeignKey(to='self', verbose_name='Parent Folder', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    key = models.CharField(verbose_name='cos key', max_length=128, null=True, blank=True)
+    update_user = models.ForeignKey(to='UserInfo', verbose_name='Update User', on_delete=models.CASCADE)
+    update_datetime = models.DateTimeField(verbose_name='Update Datetime', auto_now=True)

@@ -15,7 +15,7 @@ def wiki(request, project_id):
     # show the wiki detail
     wiki_id = request.GET.get('wiki_id')
     
-    if not wiki_id or not wiki_id.isdigit():
+    if not wiki_id or not wiki_id.isdecimal():
         return render(request, 'wiki.html')
     
     if wiki_id:
