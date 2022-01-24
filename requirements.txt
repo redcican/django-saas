@@ -7,3 +7,4 @@ twilio==7.4.0
 pillow==9.0.0
 django-mdeditor==0.1.20
 cos-python-sdk-v5==1.9.14
+qcloud-python-sts==3.0.5

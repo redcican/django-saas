@@ -1,4 +1,5 @@
 {% extends 'layout/manage.html' %}
+{% load static %}
 {% block css %}
 <style>
     .card{
@@ -23,6 +24,20 @@
     a {
             text-decoration: none;
         }
+    {% comment %} .card > .card-header .function .upload {
+        overflow: hidden;
+    }
+    .card > .card-header .function .upload input {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 76px;
+        left: -2px;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+    }  {% endcomment %}
     </style>
 {% endblock css %}
 
@@ -43,7 +58,15 @@
                 {% endfor %}
             </div>
             
-            <div>
+            <div class="function">
+                {% comment %} <div class="btn btn-primary btn-sm upload">
+                    <div><i class="fas fa-upload" aria-hidden="true"></i> Upload File</div>
+                    <input type="file" name="uploadFile" id="uploadFile" multiple>
+                </div> {% endcomment %}
+               <label class="btn btn-primary btn-sm" for="uploadFile">
+                <input class="d-none" type="file" name="uploadFile" id="uploadFile" multiple>
+                <i class="fas fa-upload" aria-hidden="true"></i> Upload File
+                </label>
                 <a type="button" class="btn btn-success btn-sm" 
                     data-bs-toggle="modal"
                     data-bs-target="#addModal"
@@ -91,17 +114,22 @@
                             <td>{{ item.update_datetime }}</td>
                             <td>
                                 {% if item.file_type == 2 %}
-                                    <a  class="btn btn-outline-warning btn-sm"
+                                    <a  class="btn btn-outline-primary btn-sm"
                                         data-bs-toggle="modal"
                                         data-bs-target="#addModal"
                                         data-whatever="Edit Folder"
-                                        data-name={{ item.name }}
-                                        data-fid={{ item.id }}>
+                                        data-name="{{ item.name }}"
+                                        data-fid="{{ item.id }}">
                                         <i class="far fa-edit" aria-hidden="true"></i>
                                     </a>
                                     
                                 {% endif %}
-                                <a href="#">Delete</a>
+                                <a  class="btn btn-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#alertModal"
+                                        data-fid="{{ item.id }}">
+                                        <i class="far fa-trash-alt" aria-hidden="true"></i>
+                                    </a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -139,17 +167,100 @@
     </div>
   </div>
 </div>
+
+<!--Delete Modal-->
+<div class="modal" id="alertModal" tabindex="-1">
+  <div class="modal-dialog">
+   <div class="modal-content">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-bottom: auto;">
+            <strong>Are you sure to delete?</strong>
+            <p style="padding-top: 20px; padding-bottom:20px">
+                All the files and folders under this folder will be deleted.
+            </p>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div style="text-align:right">
+                <a class="btn btn-primary btn-sm" data-bs-dismiss="modal" aria-label="Close">Cancel</a>
+                <button id="btnDelete" type="button" class="btn btn-danger btn-sm">Confirm</button>
+            </div>
+        </div>
+    </div>
+  </div>
+  </div>
 {% endblock content %}
 
 {% block js %}
+<script src="{% static 'js/cos-js-sdk-v5.min.js' %}"></script>
 <script>
-
+    
     var FOLDER_URL = "{% url 'tracer:file' project_id=request.tracer.project.id %}";
+    var FILE_DELETE_URL = "{% url 'tracer:file_delete' project_id=request.tracer.project.id %}";
+    var COS_CREDENTIALS = "{% url 'tracer:cos_credentials' project_id=request.tracer.project.id %}";
+
+    var cos = new COS({
+        // getAuthorization 必选参数
+        getAuthorization: function (options, callback) {
+            // 异步获取临时密钥
+            // 服务端 JS 和 PHP 例子：https://github.com/tencentyun/cos-js-sdk-v5/blob/master/server/
+            // 服务端其他语言参考 COS STS SDK ：https://github.com/tencentyun/qcloud-cos-sts-sdk
+            // STS 详细文档指引看：https://cloud.tencent.com/document/product/436/14048
+
+        var url = COS_CREDENTIALS; // url替换成您自己的后端服务
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onload = function (e) {
+            try {
+                var data = JSON.parse(e.target.responseText);
+                var credentials = data.credentials;
+            } catch (e) {
+            }
+            if (!data || !credentials) {
+              return console.error('credentials invalid:\n' + JSON.stringify(data, null, 2))
+            };
+            callback({
+              TmpSecretId: credentials.tmpSecretId,
+              TmpSecretKey: credentials.tmpSecretKey,
+              SecurityToken: credentials.sessionToken,
+              // 建议返回服务器时间作为签名的开始时间，避免用户浏览器本地时间偏差过大导致签名错误
+              StartTime: data.startTime, // 时间戳，单位秒，如：1580000000
+              ExpiredTime: data.expiredTime, // 时间戳，单位秒，如：1580000000
+          });
+        };
+        xhr.send();
+        }
+    });     // 接下来可以通过 cos 实例调用 COS 请求。
+
+
 
     $(function() {
         initAddModal();
         bindModalSubmit();
+        bindDeleteSubmit();
+        bindUploadFile();
     });
+
+    function bindUploadFile(){
+        // 通过临时凭证上传文件到tencent cos
+
+        $('#uploadFile').change(function(){
+            var fileList = $(this)[0].files; // $(this)[0] is the dom object
+            $.each(fileList, function(index, fileObject){
+                var fileName = fileObject.name;
+                cos.putObject({
+                    Bucket: '{{ request.tracer.project.bucket }}',
+                    Region: '{{ request.tracer.project.region }}',
+                    Key: fileName,
+                    StorageClass: 'STANDARD',
+                    Body: fileObject,
+                    onProgress: function(progressData) {
+                        console.log(JSON.stringify(progressData));
+                    }
+                }, function(err, data) {
+                    console.log(err || data);
+                }
+                });
+            })
+        });
+    }
 
     function initAddModal() {
         $('#addModal').on('show.bs.modal', function (event) {
@@ -171,6 +282,14 @@
                 $('#addForm')[0].reset();
             }
 
+
+        });
+
+        // 为模态框绑定关闭事件
+         $('#alertModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var fid = button.data('fid');
+            $('#btnDelete').attr('fid', fid);
 
         });
     }
@@ -195,6 +314,27 @@
                 }
             })
         });
+    }
+
+    function bindDeleteSubmit() {
+        $('#btnDelete').click(function() {
+            // 获取要删除文件id
+            $.ajax({
+                url: FILE_DELETE_URL,
+                type: "GET",
+                data: {
+                    fid: $(this).attr('fid')
+                },
+                dataType: "JSON",
+                success: function(res){
+                    if (res.status) {
+                        location.href = location.href;
+                    } else {
+                        alert(res.msg);
+                    }
+                }
+            })
+        })
     }
 
 </script>

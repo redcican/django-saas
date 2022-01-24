@@ -40,6 +40,7 @@ def project_list(request):
     if form.is_valid():
         project_name = form.cleaned_data['name'].replace(' ', '')
         # 为项目创建一个Tencent COS Bucket: {phone_number}-{timestamp}-{bucket_prefix}
+        # 初始化bucket name 和 region
         mobile_phone = request.tracer.user.mobile_phone.replace('+', '')
         bucket = "{}-{}-{}-1308621155".format(project_name, mobile_phone, str(int(time.time()*1000)))
         region = 'ap-shanghai'
