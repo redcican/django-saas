@@ -66,11 +66,18 @@ body {
 }
 .navbar-dark .navbar-nav .nav-link>li>a:hover,
 .nav-link.active>a {
+        /* color: #ffffff;
+        background-color: #4dabff; */
+
     border-bottom: 2px solid #fff;
 }
 li.active {
     border-bottom: 2px solid #fff;
+    /* color: #ffffff;
+    background-color: #4dabff; */
+
 }
+/* end customize style */
 
 .navbar-av .navbar-nav>li>a:hover,
 .navbar-av .navbar-nav>li>a:focus {

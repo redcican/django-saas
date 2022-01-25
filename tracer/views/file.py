@@ -1,6 +1,8 @@
 
+import json
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from tracer import models
 from tracer.forms.file import FolderModelForm
 from utils.tencent_cos import create_crendentials, delete_file, delete_file_list
@@ -122,8 +124,34 @@ def file_delete(request, project_id):
         delete_object.delete()
         return JsonResponse({'status': True})
     
-    
+
+@csrf_exempt    
 def cos_credentials(request, project_id):
     """获取tencent cos的临时凭证"""
+    # 做容量限制: 单个文件 和 项目总容量
+    per_file_limit = request.tracer.price_policy.per_file_size # in MB
+    project_space = request.tracer.price_policy.project_space
+    
+    # used project space
+    used_project_space = request.tracer.project.use_space
+    
+    per_file_limit_byte = per_file_limit * 1024 * 1024 # in Byte
+    total_file_limit_byte = project_space * 1024 * 1024 * 1024 # in Byte
+    
+    file_list = json.loads(request.body.decode('utf-8'))
+    
+    total_size = 0
+    
+    for item in file_list:
+        if item['size'] > per_file_limit_byte:
+            msg = f"Single file size cannot exceed {per_file_limit} MB, File name: {item['name']}, Please upgrade your plan"
+            return JsonResponse({'status': False, 'error': msg})
+        
+        total_size += item['size']
+    
+    # 判断总容量是否超过限制
+    if used_project_space + total_size > total_file_limit_byte:
+        return JsonResponse({'status': False, 'error': 'Project used space exceeded, Please upgrade your plan'})
+        
     response = create_crendentials(request.tracer.project.bucket)
-    return JsonResponse(response)
+    return JsonResponse({'status': True, 'data': response})
