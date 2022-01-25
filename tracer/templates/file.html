@@ -229,8 +229,6 @@
         }
     });     // 接下来可以通过 cos 实例调用 COS 请求。
 
-
-
     $(function() {
         initAddModal();
         bindModalSubmit();
@@ -240,7 +238,6 @@
 
     function bindUploadFile(){
         // 通过临时凭证上传文件到tencent cos
-
         $('#uploadFile').change(function(){
             var fileList = $(this)[0].files; // $(this)[0] is the dom object
             $.each(fileList, function(index, fileObject){
@@ -256,7 +253,6 @@
                     }
                 }, function(err, data) {
                     console.log(err || data);
-                }
                 });
             })
         });
@@ -281,8 +277,6 @@
                 modal.find('.error-msg').empty();
                 $('#addForm')[0].reset();
             }
-
-
         });
 
         // 为模态框绑定关闭事件
@@ -334,7 +328,7 @@
                     }
                 }
             })
-        })
+        });
     }
 
 </script>

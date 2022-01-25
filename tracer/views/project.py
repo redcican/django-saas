@@ -38,7 +38,7 @@ def project_list(request):
     # POST请求，创建项目, 通过ajax提交
     form = ProjectModelForm(request, data=request.POST)
     if form.is_valid():
-        project_name = form.cleaned_data['name'].replace(' ', '')
+        project_name = form.cleaned_data['name'].replace(' ', '').lower()
         # 为项目创建一个Tencent COS Bucket: {phone_number}-{timestamp}-{bucket_prefix}
         # 初始化bucket name 和 region
         mobile_phone = request.tracer.user.mobile_phone.replace('+', '')
