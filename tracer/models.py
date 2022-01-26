@@ -70,7 +70,8 @@ class Project(models.Model):
     name = models.CharField(verbose_name='Name', max_length=128)
     color = models.SmallIntegerField(verbose_name='Color', default=1, choices=COLOR_CHOICES)
     description= models.CharField(verbose_name='Description', max_length=255, null=True, blank=True)
-    use_space = models.IntegerField(verbose_name='Used Space (M)', default=0)
+    use_space = models.BigIntegerField(
+        verbose_name='Used Space (Bytes)', default=0, help_text='Bytes')
     star = models.BooleanField(verbose_name='Star', default=False)
     
     bucket = models.CharField(verbose_name='COS Bucket Name', max_length=128) # tencent cos cloud storage bucket name
@@ -120,7 +121,7 @@ class File(models.Model):
     project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
     name = models.CharField(verbose_name='Name', max_length=128, help_text='File/Folder name')
     file_type = models.SmallIntegerField(verbose_name='Type', choices=file_type_choices) # 1: file, 2: folder
-    file_size = models.IntegerField(verbose_name='Size', null=True, blank=True)
+    file_size = models.BigIntegerField(verbose_name='Size', null=True, blank=True, help_text='bytes')
     file_path = models.CharField(verbose_name='File Path', max_length=255, null=True, blank=True) # the location of the file on the tencent cos server
     parent = models.ForeignKey(to='self', verbose_name='Parent Folder', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     key = models.CharField(verbose_name='cos key', max_length=128, null=True, blank=True) # the name stored in cos

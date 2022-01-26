@@ -103,18 +103,19 @@
         <tbody id="rowList">
           {% for item in file_object_list %}
           <tr>
-            <th>
+            <td>
               {% if item.file_type == 1 %}
               <i class="fas fa-file"></i>
-              {{ item.name }} {% else %}
+              {{ item.name }} 
+              {% else %}
               <a
                 href="{% url 'tracer:file' project_id=request.tracer.project.id %}?folder={{ item.id }}"
               >
-                <i class="fas fa-folder"></i>
+                <i class="fas fa-folder" aria-hidden="true"></i>
                 {{ item.name }}
               </a>
               {% endif %}
-            </th>
+            </td>
             <td>
               {% if item.file_type == 1 %} {{ item.file_size }} {% else %} - {% endif %}
             </td>
@@ -265,23 +266,26 @@
     <table id="rowTemplate">
       <tr>
         <td>
-          <i class="fas fa-file" aria-hidden="true"></i> <span class="name"></span>
+          <i class="fas fa-file" aria-hidden="true"></i> 
+          <span class="name"></span>
         </td>
         <td class="file_size"></td>
         <td class="username"></td>
         <td class="datetime"></td>
         <td>
-          <a class="btn btn-primary btn-sm download">
+          {% comment %} <a class="btn btn-primary btn-sm download">
             <i class="fas fa-cloud-download" aria-hidden="true"></i>
-          </a>
-          <a class="btn btn-danger btn-sm delete" data-toggle="modal" data-target="#alertModal">
+          </a> {% endcomment %}
+          <a class="btn btn-danger btn-sm delete" data-bs-toggle="modal" data-bs-target="#alertModal">
             <i class="far fa-trash-alt" aria-hidden="true"></i>
           </a>
         </td>
       </tr>
     </table>
   </div>
-  {% endblock content %} {% block js %}
+  {% endblock content %} 
+  
+  {% block js %}
   <script src="{% static 'js/cos-js-sdk-v5.min.js' %}"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
@@ -374,8 +378,6 @@
             var $tr = $("#progressTemplate").find("tr").clone();
             $tr.find(".name").text(fileName);
             $('#progressList').append($tr);
-
-
             // 上传文件到cos
             cos.putObject(
             {
@@ -388,12 +390,12 @@
                 var percent = progressData.percent * 100 + "%";
                 $tr.find(".progress-bar").css("width", percent);
                 $tr.find(".progress-bar").text(percent);
-              },
+              }
             },
             function (err, data) {
               if(data && data.statusCode == 200){
                 // 上传成功，将本次上传的文件名和文件大小添加到数据库中
-                // 当前文件上传成功
+                // 当前文件上传成功               
                 $.post(FILE_POST, {
                   name: fileName,
                   key: key,
@@ -408,10 +410,14 @@
                   newTr.find(".file_size").text(res.data.file_size);
                   newTr.find(".username").text(res.data.username);
                   newTr.find(".datetime").text(res.data.datetime);
+                  newTr.find(".delete").attr("data-fid",res.data.id);
 
-                  $('rowList').append(newTr);
+                  $('#rowList').append(newTr);
+
+                  // remove the progress bar
+                  $tr.remove()
                 })
-              }
+              }     
               else{
                 $tr.find(".progress-bar").text("Upload error");
               }

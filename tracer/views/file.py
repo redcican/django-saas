@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from tracer import models
 from tracer.forms.file import FolderModelForm, FileModelForm
+from utils.encrypt import bytes_readable
 from utils.tencent_cos import create_crendentials, delete_file, delete_file_list
 
 def file(request, project_id):
@@ -184,13 +185,18 @@ def file_post(request, project_id):
             {'project': request.tracer.project, 'file_type':1, 'update_user':request.tracer.user})
         
         instance = models.File.objects.create(**data_dict)
+        file_size_readable = bytes_readable(instance.file_size)
+        
+        # 更新项目已使用空间
+        request.tracer.project.use_space += instance.file_size
+        request.tracer.project.save()
         
         result = {
             'id': instance.id,
             'name': instance.name,
-            'file_size': instance.file_size,
+            'file_size': file_size_readable,
             'username': instance.update_user.username,
-            'datetime': instance.update_datetime,
+            'datetime': instance.update_datetime.strftime('%Y-%m-%d %H:%M:%S'),
             # 'file_type': instance.get_file_type_display(),
         }
         return JsonResponse({'status': True, 'data': result})

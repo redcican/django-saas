@@ -15,3 +15,12 @@ def uid(string: str):
     """generate a random name for image file"""
     data = f"{str(uuid.uuid4())}-{string}"
     return md5(data)
+
+
+def bytes_readable(num, suffix="B"):
+    """convert bytes to human readable format"""
+    for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.2f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.2f}Yi{suffix}"
