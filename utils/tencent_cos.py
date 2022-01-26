@@ -145,3 +145,18 @@ def create_crendentials(bucket: str, region: str = 'ap-shanghai'):
     response = sts.get_credential()
 
     return response
+
+
+def check_file_exist(bucket: str, key, region: str = 'ap-shanghai'):
+    """
+    检查文件是否存在
+    """
+    config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
+    client = CosS3Client(config)
+    
+    response = client.head_object(
+        Bucket=bucket,
+        Key=key
+    )
+    
+    return response

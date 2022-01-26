@@ -36,8 +36,9 @@ urlpatterns = [
             
             re_path('file/$', file.file, name='file'),
             re_path('file/delete/$', file.file_delete, name='file_delete'),
-            re_path('cos/cos_credentials/$',
-                    file.cos_credentials, name='cos_credentials'),
+            re_path('cos/cos_credentials/$',file.cos_credentials, name='cos_credentials'),
+            re_path('file/post/$', file.file_post, name='file_post'), # upload file name and size to database
+
 
             re_path('setting/$',manage.setting, name='setting'),
     ])),

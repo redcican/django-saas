@@ -24,8 +24,8 @@ class PricePolicy(models.Model):
     
     project_num = models.PositiveIntegerField(verbose_name='Project Number')
     project_member = models.PositiveIntegerField(verbose_name='Project Member')
-    project_space = models.PositiveIntegerField(verbose_name='Single Project Space')
-    per_file_size = models.PositiveIntegerField(verbose_name='Per File Size (M)')
+    project_space = models.PositiveIntegerField(verbose_name='Single Project Space (GB)')
+    per_file_size = models.PositiveIntegerField(verbose_name='Per File Size (MB)')
     
     create_datetime = models.DateTimeField(verbose_name='Create Datetime', auto_now_add=True)
     
@@ -120,8 +120,8 @@ class File(models.Model):
     project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
     name = models.CharField(verbose_name='Name', max_length=128, help_text='File/Folder name')
     file_type = models.SmallIntegerField(verbose_name='Type', choices=file_type_choices) # 1: file, 2: folder
-    file_size = models.DecimalField(verbose_name='Size', null=True, blank=True,decimal_places=2, max_digits=16)
-    # file_path = models.CharField(verbose_name='File Path', max_length=255, null=True, blank=True)
+    file_size = models.IntegerField(verbose_name='Size', null=True, blank=True)
+    file_path = models.CharField(verbose_name='File Path', max_length=255, null=True, blank=True) # the location of the file on the tencent cos server
     parent = models.ForeignKey(to='self', verbose_name='Parent Folder', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     key = models.CharField(verbose_name='cos key', max_length=128, null=True, blank=True) # the name stored in cos
     update_user = models.ForeignKey(to='UserInfo', verbose_name='Update User', on_delete=models.CASCADE)

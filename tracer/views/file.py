@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from tracer import models
-from tracer.forms.file import FolderModelForm
+from tracer.forms.file import FolderModelForm, FileModelForm
 from utils.tencent_cos import create_crendentials, delete_file, delete_file_list
 
 def file(request, project_id):
@@ -39,7 +39,13 @@ def file(request, project_id):
             file_object_list = queryset.filter(parent__isnull=True).order_by('-file_type')
         
         form = FolderModelForm(request, parent_object)
-        context = {'form': form, 'file_object_list': file_object_list, 'breadcrumb_list': breadcrumb_list}
+        context = {
+            'form': form, 
+            'file_object_list': file_object_list, 
+            'breadcrumb_list': breadcrumb_list,
+            'folder_object': parent_object
+            }
+
         return render(request, 'file.html', context)
 
     
@@ -155,3 +161,40 @@ def cos_credentials(request, project_id):
         
     response = create_crendentials(request.tracer.project.bucket)
     return JsonResponse({'status': True, 'data': response})
+
+
+@csrf_exempt # ajax post cors request
+def file_post(request, project_id):
+    """将已经上传的文件信息写入数据库
+    
+    name: fileName,
+    key: key,
+    file_size: fileSize,
+    parent: CURRENT_FOLDER_ID,
+    etag: data.ETag,
+    file_path: data.Location,
+    """
+
+    form = FileModelForm(request, data=request.POST)
+
+    if form.is_valid():
+        data_dict = form.cleaned_data
+        data_dict.pop('etag')
+        data_dict.update(
+            {'project': request.tracer.project, 'file_type':1, 'update_user':request.tracer.user})
+        
+        instance = models.File.objects.create(**data_dict)
+        
+        result = {
+            'id': instance.id,
+            'name': instance.name,
+            'file_size': instance.file_size,
+            'username': instance.update_user.username,
+            'datetime': instance.update_datetime,
+            # 'file_type': instance.get_file_type_display(),
+        }
+        return JsonResponse({'status': True, 'data': result})
+    
+    return JsonResponse({'status': False, 'errors': form.errors})
+    
+    
