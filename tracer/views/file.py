@@ -1,12 +1,15 @@
 
 import json
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from tracer import models
 from tracer.forms.file import FolderModelForm, FileModelForm
 from utils.encrypt import bytes_readable
 from utils.tencent_cos import create_crendentials, delete_file, delete_file_list
+import requests
+from django.utils.encoding import escape_uri_path
 
 def file(request, project_id):
     """file list"""
@@ -197,6 +200,7 @@ def file_post(request, project_id):
             'file_size': file_size_readable,
             'username': instance.update_user.username,
             'datetime': instance.update_datetime.strftime('%Y-%m-%d %H:%M:%S'),
+            'download_url': reverse('file_download', kwargs={'project_id': project_id, 'file_id': instance.id}),
             # 'file_type': instance.get_file_type_display(),
         }
         return JsonResponse({'status': True, 'data': result})
@@ -204,3 +208,19 @@ def file_post(request, project_id):
     return JsonResponse({'status': False, 'errors': form.errors})
     
     
+def file_download(request, project_id, file_id):
+    # 找到要下载的文件
+    file_object = models.File.objects.filter(id=file_id, project=request.tracer.project).first()
+    
+    res = requests.get(file_object.file_path)
+    
+    # 文件分块下载
+    data = res.iter_content()
+    
+    # 设置content-type=application/octet-stream 用于提示下载框
+    response = HttpResponse(data,content_type='application/octet-stream')
+    
+    # 设置响应头，用于中文文件名转义
+    response['Content-Disposition'] = f'attachment; filename={escape_uri_path(file_object.name)}'
+    
+    return response

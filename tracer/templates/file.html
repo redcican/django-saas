@@ -1,7 +1,7 @@
 {% extends 'layout/manage.html' %} {% load static %} {% block css %}
 <style>
   .card{
-      margin-top: 20px;
+      margin-top: 3rem;
   }
   .card .card-header {
           display: flex;
@@ -46,6 +46,7 @@
     text-align: center;
     color: #61534e;
 }
+
 </style>
 {% endblock css %} {% block content %}
 <div class="container-fluid">
@@ -97,7 +98,7 @@
             <th scope="col">Size</th>
             <th scope="col">Update User</th>
             <th scope="col">Update Time</th>
-            <th scope="col">Operation</th>
+            <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody id="rowList">
@@ -130,8 +131,15 @@
                 data-whatever="Edit Folder"
                 data-name="{{ item.name }}"
                 data-fid="{{ item.id }}"
+                style="width:35.5px"
               >
-                <i class="far fa-edit" aria-hidden="true"></i>
+                <i class="fas fa-edit" aria-hidden="true"></i>
+              </a>
+              {% else %}
+              <a class="btn btn-outline-primary btn-sm" 
+                href= "{% url 'tracer:file_download' project_id=request.tracer.project.id file_id=item.id %}"
+                >
+                <i class="fas fa-cloud-download" aria-hidden="true"></i>
               </a>
 
               {% endif %}
@@ -262,6 +270,7 @@
     </table>
   </div>
 
+  <!--- Table template for file -->
   <div class="d-none">
     <table id="rowTemplate">
       <tr>
@@ -273,9 +282,9 @@
         <td class="username"></td>
         <td class="datetime"></td>
         <td>
-          {% comment %} <a class="btn btn-primary btn-sm download">
+          <a class="btn btn-outline-primary btn-sm download" style="font-size: 32px 31px">
             <i class="fas fa-cloud-download" aria-hidden="true"></i>
-          </a> {% endcomment %}
+          </a> 
           <a class="btn btn-danger btn-sm delete" data-bs-toggle="modal" data-bs-target="#alertModal">
             <i class="far fa-trash-alt" aria-hidden="true"></i>
           </a>
@@ -411,6 +420,7 @@
                   newTr.find(".username").text(res.data.username);
                   newTr.find(".datetime").text(res.data.datetime);
                   newTr.find(".delete").attr("data-fid",res.data.id);
+                  newTr.find(".download").attr("hef",res.data.download_url);
 
                   $('#rowList').append(newTr);
 

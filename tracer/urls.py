@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 from django.urls.conf import include
 
-from .views import (account, home, project, manage, wiki, file)
+from .views import (account, home, project, manage, wiki, file, setting)
 
 
 app_name = 'tracer'
@@ -38,8 +38,10 @@ urlpatterns = [
             re_path('file/delete/$', file.file_delete, name='file_delete'),
             re_path('cos/cos_credentials/$',file.cos_credentials, name='cos_credentials'),
             re_path('file/post/$', file.file_post, name='file_post'), # upload file name and size to database
+            re_path('file/download/(?P<file_id>\d+)/$', file.file_download, name='file_download'),
 
 
-            re_path('setting/$',manage.setting, name='setting'),
+            re_path('setting/$',setting.setting, name='setting'),
+            re_path('setting/delete/$',setting.setting_delete, name='setting_delete'),
     ])),
 ]

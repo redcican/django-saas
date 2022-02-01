@@ -1,6 +1,41 @@
 {% extends 'layout/manage.html' %}
 
+{% block css %}
+<style>
+        .card {
+            margin-top: 20px;
+        }
+</style>
+
+{% endblock css %}
 
 {% block content %}
-    <h1>Overview</h1>
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3">
+            <div class="card">
+                <div class="card-header" style="background-color:transparent; font-weight:500"> 
+                    Personal Center
+                </div>
+                
+                    <div class="list-group" style="border-radius:0">
+                        <a class="list-group-item list-group-item-action" href="#">My Profile</a>
+                        <a class="list-group-item list-group-item-action" href="#">Change Password</a>
+                        <a class="list-group-item list-group-item-action" href="{% url 'tracer:setting_delete' project_id=request.tracer.project.id %}">Delete Project</a>
+                    </div>
+                 
+                </div>
+            </div>
+        <div class="col-sm-9">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <i class="far fa-id-card"></i> My Profile
+                    </div>
+                </div>
+                <div class="card-body">System Settings</div>
+            </div>
+        </div>
+
+    </div>
 {% endblock content %}

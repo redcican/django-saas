@@ -2,11 +2,11 @@
 <style>
 
   .project {
-    margin-top: 10px;
+    margin-top: 2rem;
   }
 
   .card {
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
   }
 
   .card-body {
@@ -96,8 +96,7 @@
           href="{% url 'tracer:dashboard' project_id=item.value.id %}"
           class="title"
           style="background-color:{{item.value.get_color_display}}"
-          >{{item.value.name}}</a
-        >
+          >{{item.value.name}}</a>
 
         <div class="info">
           <div>

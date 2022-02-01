@@ -1,0 +1,61 @@
+{% extends 'layout/manage.html' %}
+
+{% block css %}
+<style>
+        .card {
+            margin-top: 3rem;
+        }
+        .choose{
+            border-left: 3px solid #00a65a !important;
+        }
+        .error-msg {
+            color:red;
+            position: absolute;
+            font-size: 12px;
+        }
+</style>
+
+{% endblock css %}
+
+{% block content %}
+  <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3">
+            <div class="card">
+                <div class="card-header" style="background-color:transparent; font-weight:500"> 
+                    Personal Center
+                </div>
+                
+                    <div class="list-group" style="border-radius:0">
+                        <a class="list-group-item list-group-item-action" href="#">My Profile</a>
+                        <a class="list-group-item list-group-item-action" href="#">Change Password</a>
+                        <a class="list-group-item list-group-item-action choose" href="{% url 'tracer:setting_delete' project_id=request.tracer.project.id %}">Delete Project</a>
+                    </div>
+                 
+                </div>
+            </div>
+        <div class="col-sm-9">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <i class="far fa-id-card"></i> My Profile
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Project Name</label>
+                            <input type="text" class="form-control" id="exampleInputEmail1"
+                              name="project_name">
+                            <div id="emailHelp" class="form-text">This action cannot be reverted!</div>
+                            <span class="error-msg">{{ error }}</span>
+                        </div>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock content %}
