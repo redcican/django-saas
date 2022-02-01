@@ -1,6 +1,8 @@
 
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from tracer import models
+
+from utils.tencent_cos import delete_bucket
 
 
 def setting(request, project_id):
@@ -25,5 +27,7 @@ def setting_delete(request, project_id):
     # 1.1 删除 Bucket 中的所有文件
     # 1.2 删除 Bucket 中的文件碎片    
     # 2. 删除项目
+    delete_bucket(request.tracer.project.bucket, request.tracer.project.region)
+    models.Project.objects.filter(id=request.tracer.project.id).delete()
     
     return redirect('tracer:project_list')

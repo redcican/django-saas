@@ -160,3 +160,48 @@ def check_file_exist(bucket: str, key, region: str = 'ap-shanghai'):
     )
     
     return response
+
+
+def delete_bucket(bucket: str, region: str = 'ap-shanghai'):
+    """删除bucket"""
+    # 删除桶中的所有文件
+    # 删除桶中的所有碎片
+    # 删除桶
+    config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
+    client = CosS3Client(config)
+    
+    # 桶中的所有文件
+    while True:
+        part_object = client.list_objects(bucket)
+        
+        contents = part_object.get('Contents')
+        if not contents:
+            break
+        
+        # 批量删除
+        objects = {
+            "Quiet": "true",
+            "Object": [{'Key': content['Key']} for content in contents]
+        }
+        client.delete_objects(bucket, objects)
+        
+        if part_object['IsTruncated'] == 'false':
+            break
+    
+    # 桶中的所有碎片
+    while True:
+        part_upload = client.list_multipart_uploads(bucket)
+        
+        uploads = part_upload.get('Upload')
+        if not uploads:
+            break
+        
+        # 批量删除
+        for item in uploads:
+            client.abort_multipart_upload(bucket, item['Key'], item['UploadId'])
+        
+        if part_upload['IsTruncated'] == 'false':
+            break
+        
+    # 删除桶
+    client.delete_bucket(bucket)
