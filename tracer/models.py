@@ -127,3 +127,74 @@ class File(models.Model):
     key = models.CharField(verbose_name='cos key', max_length=128, null=True, blank=True) # the name stored in cos
     update_user = models.ForeignKey(to='UserInfo', verbose_name='Update User', on_delete=models.CASCADE)
     update_datetime = models.DateTimeField(verbose_name='Update Datetime', auto_now=True)
+  
+  
+class Issues(models.Model):
+    """Issues"""
+    project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
+    issues_type = models.ForeignKey(to='IssuesType', verbose_name='Issues Type', on_delete=models.CASCADE)
+    module = models.ForeignKey(to='Module', verbose_name='Module', on_delete=models.CASCADE, null=True, blank=True)
+    
+    subject = models.CharField(verbose_name='Subject', max_length=128)
+    desc = models.TextField(verbose_name='Description', null=True, blank=True)
+    
+    priority_choices = (
+        ("danger", "high"),
+        ("warning", "middle"),
+        ("success", "low"),
+    )  
+    priority = models.CharField(verbose_name='Priority', max_length=16, choices=priority_choices, default='danger')
+    
+    # 新建，处理中，已解决，已忽略，待反馈，已关闭，重新打开
+    status_choices = (
+        (1, 'New'),
+        (2, 'Processing'),
+        (3, 'Solved'),
+        (4, 'Ignored'),
+        (5, 'Feedback'),
+        (6, 'Closed'),
+        (7, 'Reopened'),
+    )
+    status = models.SmallIntegerField(verbose_name='Status', choices=status_choices, default=1)
+    
+    assign = models.ForeignKey(to='UserInfo', verbose_name='Assign', on_delete=models.CASCADE, related_name='task',null=True, blank=True)
+    
+    attention = models.ManyToManyField(to='UserInfo', verbose_name='Attention', related_name='observe', blank=True)
+    
+    start_date = models.DateField(verbose_name='Start Date', null=True, blank=True)
+    end_date = models.DateField(verbose_name='End Date', null=True, blank=True)
+    
+    mode_choices = (
+        (1, 'Public Mode'),
+        (2, 'Private Mode'),
+    )
+    mode = models.SmallIntegerField(verbose_name='Mode', choices=mode_choices, default=1)
+    
+    parent = models.ForeignKey(to='self', verbose_name='Parent Issue', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    
+    creator = models.ForeignKey(to='UserInfo', verbose_name='Creator', on_delete=models.CASCADE, related_name='create_problems')
+    create_datetime = models.DateTimeField(verbose_name='Create Datetime', auto_now_add=True)
+    latest_update_datetime = models.DateTimeField(verbose_name='Latest Update Datetime', auto_now=True)
+    
+    def __str__(self):
+        return self.subject
+    
+class Module(models.Model):
+    """Module (Milestone) for issue tracking"""
+    project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
+    title = models.CharField(verbose_name='Title', max_length=128)
+
+    
+    def __str__(self):
+        return self.title
+    
+    
+class IssuesType(models.Model):
+    """Issues type, such as Bug, Feature, Task, etc."""
+
+    project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
+    title = models.CharField(verbose_name='Title', max_length=128)
+    color = models.SmallIntegerField(verbose_name='Color')
+    
+    def __str__(self):
+        return self.title

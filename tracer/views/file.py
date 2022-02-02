@@ -200,7 +200,7 @@ def file_post(request, project_id):
             'file_size': file_size_readable,
             'username': instance.update_user.username,
             'datetime': instance.update_datetime.strftime('%Y-%m-%d %H:%M:%S'),
-            'download_url': reverse('file_download', kwargs={'project_id': project_id, 'file_id': instance.id}),
+            'download_url': reverse('tracer:file_download', kwargs={'project_id': project_id, 'file_id': instance.id}),
             # 'file_type': instance.get_file_type_display(),
         }
         return JsonResponse({'status': True, 'data': result})

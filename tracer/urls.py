@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 from django.urls.conf import include
 
-from .views import (account, home, project, manage, wiki, file, setting)
+from .views import (account, home, project, manage, wiki, file, setting, issues)
 
 
 app_name = 'tracer'
@@ -23,7 +23,6 @@ urlpatterns = [
     # project manage
     re_path('manage/(?P<project_id>\d+)/', include([
             re_path('dashboard/$',manage.dashboard, name='dashboard'),
-            re_path('issues/$',manage.issues, name='issues'),
             re_path('statistics/$', manage.statistics, name='statistics'),            
             
             re_path('wiki/$',wiki.wiki, name='wiki'),
@@ -43,5 +42,8 @@ urlpatterns = [
 
             re_path('setting/$',setting.setting, name='setting'),
             re_path('setting/delete/$',setting.setting_delete, name='setting_delete'),
+            
+            re_path('issues/$',issues.issues, name='issues'),
+
     ])),
 ]
