@@ -157,7 +157,7 @@ class Issues(models.Model):
     )
     status = models.SmallIntegerField(verbose_name='Status', choices=status_choices, default=1)
     
-    assign = models.ForeignKey(to='UserInfo', verbose_name='Assign', on_delete=models.CASCADE, related_name='task',null=True, blank=True)
+    assign = models.ForeignKey(to='UserInfo', verbose_name='Assign to', on_delete=models.CASCADE, related_name='task',null=True, blank=True)
     
     attention = models.ManyToManyField(to='UserInfo', verbose_name='Attention', related_name='observe', blank=True)
     
