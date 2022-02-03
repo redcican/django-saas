@@ -2,11 +2,12 @@
 {% load static %}
 {% block css %}
  <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
+ <link rel="stylesheet" href="{% static 'plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}">
 
 <style> a {
           text-decoration: none;
       }
-        .row {
+        .card {
             margin-top: 3rem;
         }
         .table {
@@ -121,7 +122,7 @@
                                     {{ form.issues_type.label }}</label>
                                 <div class="col-sm-10">
                                     {{ form.issues_type}}
-                                    <div class="error-msg"></div>
+                                    <span class="error-msg"></span>
                                 </div>
                               </div>
                             <div class="row mb-3">
@@ -129,7 +130,7 @@
                                     {{ form.subject.label }}</label>
                                 <div class="col-sm-10">
                                     {{ form.subject}}
-                                    <div class="error-msg"></div>
+                                    <span class="error-msg"></span>
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -137,7 +138,7 @@
                                     {{ form.module.label }}</label>
                                 <div class="col-sm-10">
                                     {{ form.module}}
-                                    <div class="error-msg"></div>
+                                    <span class="error-msg"></span>
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -147,7 +148,105 @@
                                     <div id="editor">
                                         {{ form.desc }}
                                     </div> 
-                                    <div class="error-msg"></div>
+                                    <span class="error-msg"></span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label for="{{ form.status.id_for_label }}" class="col-sm-4 col-form-label">
+                                            {{ form.status.label }}</label>
+                                        <div class="col-sm-8">
+                                            {{ form.status}}
+                                            <span class="error-msg"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label for="{{ form.priority.id_for_label }}" class="col-sm-4 col-form-label">
+                                            {{ form.priority.label }}</label>
+                                        <div class="col-sm-8">
+                                            {{ form.priority}}
+                                            <span class="error-msg"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label for="{{ form.assign.id_for_label }}" class="col-sm-4 col-form-label">
+                                            {{ form.assign.label }}</label>
+                                        <div class="col-sm-8">
+                                            {{ form.assign}}
+                                            <span class="error-msg"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label for="{{ form.attention.id_for_label }}" class="col-sm-4 col-form-label">
+                                            {{ form.attention.label }}</label>
+                                        <div class="col-sm-8">
+                                            {{ form.attention}}
+                                            <span class="error-msg"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label for="{{ form.start_date.id_for_label }}" class="col-sm-4 col-form-label">
+                                            {{ form.start_date.label }}</label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group flex-nowrap">
+                                                <span class="input-group-text" id="addon-wrapping">
+                                                    <i class="far fa-calendar-alt" aria-hidden="true"></i>
+                                                </span>
+                                                {{ form.start_date}}
+                                            </div>
+                                            <span class="error-msg"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label for="{{ form.end_date.id_for_label }}" class="col-sm-4 col-form-label">
+                                            {{ form.end_date.label }}</label>
+                                        <div class="col-sm-8">
+                                            <div class="input-group flex-nowrap">
+                                                <span class="input-group-text" id="addon-wrapping">
+                                                    <i class="far fa-calendar-alt" aria-hidden="true"></i>
+                                                </span>
+                                                {{ form.end_date}}
+                                            </div>
+                                            <span class="error-msg"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label for="{{ form.mode.id_for_label }}" class="col-sm-4 col-form-label">
+                                            {{ form.mode.label }}</label>
+                                        <div class="col-sm-8">
+                                            {{ form.mode}}
+                                            <span class="error-msg"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label for="{{ form.parent.id_for_label }}" class="col-sm-4 col-form-label">
+                                            {{ form.parent.label }}</label>
+                                        <div class="col-sm-8">
+                                            {{ form.parent}}
+                                            <span class="error-msg"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>                    
@@ -165,12 +264,23 @@
 {% block js %}
 <script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
 <script src="{% static 'plugin/editor-md/languages/en.js' %}"></script>
+<script src="{% static 'plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
 <script>
     var WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
 
     $( function () {
         bindBootStrapShownEvent();
+        initDatePicker();
     });
+
+    function initDatePicker(){
+        $('#id_start_date,#id_end_date').datepicker({
+            format: 'mm-dd-yyyy',
+            start_date: 0,
+            autoclose: true,
+            todayHighlight: true
+        });
+    }
     /**
      * 初始化MDEditor
      */
