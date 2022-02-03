@@ -88,7 +88,7 @@ def wiki_edit(request, project_id, wiki_id):
     
 @csrf_exempt
 def wiki_upload(request, project_id):
-    """upload wiki image to tencent cos"""
+    """upload wiki and issues image to tencent cos"""
     result = {'success': 0, 'message': '', 'url': None}
     
     image_object = request.FILES.get('editormd-image-file')

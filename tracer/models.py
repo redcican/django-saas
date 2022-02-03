@@ -132,7 +132,7 @@ class File(models.Model):
 class Issues(models.Model):
     """Issues"""
     project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
-    issues_type = models.ForeignKey(to='IssuesType', verbose_name='Issues Type', on_delete=models.CASCADE)
+    issues_type = models.ForeignKey(to='IssuesType', verbose_name='Issues type', on_delete=models.CASCADE)
     module = models.ForeignKey(to='Module', verbose_name='Module', on_delete=models.CASCADE, null=True, blank=True)
     
     subject = models.CharField(verbose_name='Subject', max_length=128)
