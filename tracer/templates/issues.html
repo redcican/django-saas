@@ -2,8 +2,8 @@
 {% load static %}
 {% block css %}
  <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
- <link rel="stylesheet" href="{% static 'plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}">
-<link rel="stylesheet" href="{% static 'plugin/bootstrap-select/css/bootstrap-select.min.css' %}">
+ {% comment %} <link rel="stylesheet" href="{% static 'plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}"> {% endcomment %}
+ <link rel="stylesheet" href="{% static 'plugin/bootstrap-select/css/bootstrap-select.min.css' %}">
 
 <style> a {
           text-decoration: none;
@@ -116,6 +116,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                        {{ form.media }}
                         <form id="addForm">
                             {% csrf_token %}
                               <div class="row mb-3">
@@ -203,9 +204,7 @@
                                             {{ form.start_date.label }}</label>
                                         <div class="col-sm-8">
                                             <div class="input-group flex-nowrap">
-                                                <span class="input-group-text" id="addon-wrapping">
-                                                    <i class="far fa-calendar-alt" aria-hidden="true"></i>
-                                                </span>
+                                        
                                                 {{ form.start_date}}
                                             </div>
                                             <span class="error-msg"></span>
@@ -218,9 +217,6 @@
                                             {{ form.end_date.label }}</label>
                                         <div class="col-sm-8">
                                             <div class="input-group flex-nowrap">
-                                                <span class="input-group-text" id="addon-wrapping">
-                                                    <i class="far fa-calendar-alt" aria-hidden="true"></i>
-                                                </span>
                                                 {{ form.end_date}}
                                             </div>
                                             <span class="error-msg"></span>
@@ -265,17 +261,18 @@
 {% block js %}
 <script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
 <script src="{% static 'plugin/editor-md/languages/en.js' %}"></script>
-<script src="{% static 'plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
 <script src="{% static 'plugin/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
+{% comment %} <script src="{% static 'plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script> {% endcomment %}
 
 <script>
     var WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
 
     $( function () {
         bindBootStrapShownEvent();
-        initDatePicker();
+        // initDatePicker();
     });
-
+    
+    /**
     function initDatePicker(){
         $('#id_start_date,#id_end_date').datepicker({
             format: 'mm-dd-yyyy',
@@ -285,7 +282,7 @@
         });
     }
 
-    /**
+    
      * 初始化MDEditor
      */
     function bindBootStrapShownEvent(){

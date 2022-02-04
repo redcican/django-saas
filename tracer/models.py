@@ -11,6 +11,9 @@ class UserInfo(models.Model):
     # mobile_phone = PhoneNumberField(null=False, blank=False, unique=True)
     password = models.CharField(verbose_name='Password', max_length=100)
     
+    def __str__(self):
+        return self.username
+    
     
 class PricePolicy(models.Model):
     category_choices = (
