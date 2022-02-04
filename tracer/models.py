@@ -199,7 +199,6 @@ class IssuesType(models.Model):
 
     project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
     title = models.CharField(verbose_name='Title', max_length=128)
-    # color = models.SmallIntegerField(verbose_name='Color')
     
     def __str__(self):
         return self.title
