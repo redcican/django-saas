@@ -2,7 +2,6 @@
 {% load static %}
 {% block css %}
  <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
- {% comment %} <link rel="stylesheet" href="{% static 'plugin/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}"> {% endcomment %}
  <link rel="stylesheet" href="{% static 'plugin/bootstrap-select/css/bootstrap-select.min.css' %}">
 
 <style> a {
@@ -262,7 +261,6 @@
 <script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
 <script src="{% static 'plugin/editor-md/languages/en.js' %}"></script>
 <script src="{% static 'plugin/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
-{% comment %} <script src="{% static 'plugin/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script> {% endcomment %}
 
 <script>
     var WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
@@ -271,18 +269,7 @@
         bindBootStrapShownEvent();
         // initDatePicker();
     });
-    
-    /**
-    function initDatePicker(){
-        $('#id_start_date,#id_end_date').datepicker({
-            format: 'mm-dd-yyyy',
-            start_date: 0,
-            autoclose: true,
-            todayHighlight: true
-        });
-    }
-
-    
+    /*
      * 初始化MDEditor
      */
     function bindBootStrapShownEvent(){
