@@ -194,10 +194,12 @@ class Module(models.Model):
     
 class IssuesType(models.Model):
     """Issues type, such as Bug, Feature, Task, etc."""
+    
+    PROJECT_INIT_LIST = ['Task', 'Bug', 'Feature']
 
     project = models.ForeignKey(to='Project', verbose_name='Project', on_delete=models.CASCADE)
     title = models.CharField(verbose_name='Title', max_length=128)
-    color = models.SmallIntegerField(verbose_name='Color')
+    # color = models.SmallIntegerField(verbose_name='Color')
     
     def __str__(self):
         return self.title

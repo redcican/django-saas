@@ -13,7 +13,7 @@ class IssuesModelForm(BootstrapForm, forms.ModelForm):
         
         widgets = {
             "assign": forms.Select(attrs={'class': "selectpicker", 'data-live-search': "true"}),
-            "issues_type": forms.Select(attrs={'class': "selectpicker", 'data-live-search': "true"}),
+            #"issues_type": forms.Select(attrs={'class': "selectpicker", 'data-live-search': "true"}),
             "module": forms.Select(attrs={'class': "selectpicker", 'data-live-search': "true"}),
             "parent": forms.Select(attrs={'class': "selectpicker", 'data-live-search': "true"}),
             "attention": forms.SelectMultiple(attrs={'class': "selectpicker", 'data-live-search': "true",
@@ -29,9 +29,9 @@ class IssuesModelForm(BootstrapForm, forms.ModelForm):
         
         # 初始化时，设置默认值
         # 1. 获取当前项目的所有问题类型
-        issues_type_list = [("", "Nothing selected")]
-        issues_type_object_list = models.IssuesType.objects.filter(project=request.tracer.project).values_list('id','title')
-        issues_type_list.extend(issues_type_object_list)
+        # issues_type_list = [("", "Nothing selected")]
+        issues_type_list = models.IssuesType.objects.filter(project=request.tracer.project).values_list('id','title')
+        
         self.fields['issues_type'].choices = issues_type_list
         
         # 2. 获取当前项目的所有模块
