@@ -9,6 +9,53 @@
         .card {
             margin-top: 2rem;
         } 
+        a{
+            text-decoration: none;
+        }
+        .comment-area .item{
+            margin-top: 1rem;
+        }
+        .comment-area .left-avatar{
+            float: left;
+            margin-right: 10px;
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: #304659;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 50%;
+        }
+        .comment-area .right-info{
+            padding-left: 35px;
+        }
+        .comment-area .right-info .desc .msg {
+            display: inline-block;
+            padding-right: 20px;
+            color: #8c8c8c;
+        }
+
+        .comment-area .child {
+            padding-left: 55px;
+        }
+        .comment-area .error-msg {
+            color: red;
+        }
+
+        .comment-area .reply-user {
+            display: inline-block;
+            background-color: #ddd;
+            color: black;
+            padding: 6px 8px;
+            margin-left: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+         .comment-area .right-info .text{
+            margin-bottom: 0.5rem;
+            background-color: aliceblue;
+        }
 </style>
 
 {% endblock css %}
@@ -172,12 +219,55 @@
                         <i class="fas fa-history"></i> Operation History
                     </div>
                 </div>
-                <div class="card-body">
-                   
+                <div class="card-body comment-area">
+                   <div class="comment-list">
+
+                   </div>
+                   <hr/>
+                   <div class="comment-text" id="commentText">
+                       <div class="form-outline mb-4">
+                            <textarea id="content" rows="8" class="form-control"
+                                      placeholder="Please enter the content to reply"></textarea>
+                            <span class="error-msg"></span>
+                        </div>
+
+                        <input class="btn btn-primary mb-4" type="button" id="btnSubmit" value="Send">
+                        <div class="reply-user d-none" id="replyUser">
+                            Reply <span></span>
+                            <i class="fa fa-times-circle" aria-hidden="true" style="color: #9d9d9d;"></i>
+                        </div>
+                   </div>
                 </div>
-          
-        </div>
-    </div>
+            </div>
+</div>
+
+<div class="d-none" id="recordTemplate">
+  <div class="item clearfix">
+      <div class="left-avatar"></div>
+      <div class="right-info">
+          <pre class="card-header border text"></pre>
+          <div class="desc">
+              <div class="msg">
+                  <i class="fas fa-bullhorn" aria-hidden="true"></i>
+                  <span class="type"></span>
+              </div>
+              <div class="msg">
+                  <i class="far fa-user" aria-hidden="true"></i>
+                    <span class="user"></span>
+              </div>
+            <div class="msg">
+                  <i class="far fa-clock" aria-hidden="true"></i>
+                    <span class="date"></span>
+              </div>
+
+              <a href="#commentText" class="reply">
+                  <i class="far fa-comment-dots"></i> Reply
+              </a>
+          </div>
+      </div>
+      <div class="child"></div>
+  </div>
+</div>
 
 
 {% endblock content %}
@@ -189,9 +279,11 @@
 
 <script>
     var WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
+    var ISSUES_RECORD_API = "{% url 'tracer:issues_record' project_id=request.tracer.project.id issue_id=issues_object.id %}";
 
-    $( function () {
+    $(function () {
         initEditorMd();
+        initIssueRecord();
     });
 
     /*
@@ -211,5 +303,38 @@
         })
     }
 
+    function initIssueRecord(){
+        $.ajax({
+            url:ISSUES_RECORD_API,
+            type:"GET",
+            dataType:"JSON",
+            success: function(res){
+                if(res.status){
+                    $.each(res.data, function(index, item){
+                        createRecord(item);
+                    });}
+                    else{
+
+                    }
+                }
+        })
+    }
+    /*创建操作记录的函数 */
+    function createRecord(nodeDict){
+        var $item = $("#recordTemplate").find('.item').clone();
+        $item.find('.left-avatar').html(nodeDict.creator[0].toUpperCase());
+        $item.find('pre').html(nodeDict.content);
+        $item.find('.user').html(nodeDict.creator);
+        $item.find('.type').html(nodeDict.reply_type_text);
+        $item.find('.date').html(nodeDict.datetime);
+
+        $item.attr({id:nodeDict.id, username:nodeDict.creator});
+
+        if(nodeDict.parent_id){
+            $('#'+nodeDict.parent_id).children('.child').append($item);
+        }else{
+            $('.comment-list').append($item);
+        }
+    }
 </script>
 {% endblock js %}

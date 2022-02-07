@@ -45,6 +45,7 @@ urlpatterns = [
             
             re_path('issues/$',issues.issues, name='issues'),
             re_path('issues/detail/(?P<issue_id>\d+)/$',issues.issues_detail, name='issues_detail'),
+            re_path('issues/record/(?P<issue_id>\d+)/$',issues.issues_record, name='issues_record'),
 
     ])),
 ]

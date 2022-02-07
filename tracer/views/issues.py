@@ -30,7 +30,26 @@ def issues(request, project_id):
 
 def issues_detail(request, project_id, issue_id):
     """edit the specific issue"""
-    issue_object = models.Issues.objects.filter(id=issue_id, project_id=project_id).first()
-    form = IssuesModelForm(request, instance=issue_object)
+    issues_object = models.Issues.objects.filter(id=issue_id, project_id=project_id).first()
+    form = IssuesModelForm(request, instance=issues_object)
 
-    return render(request, 'issues_detail.html', {'form': form})
+    return render(request, 'issues_detail.html', {'form': form, 'issues_object': issues_object})
+
+def issues_record(request, project_id, issue_id):
+    """init issues operation history"""
+    reply_list = models.IssuesReply.objects.filter(issues_id=issue_id, issues__project_id=project_id)
+    
+    # 将queryset 转换成json格式
+    data_list = []
+    for row in reply_list:
+        data = {
+            'id': row.id,
+            'reply_type_text': row.get_reply_type_display(),
+            'content': row.content,
+            'creator': row.creator.username,
+            'datetime': row.create_datetime.strftime('%Y-%m-%d %H:%M:%S'),
+            'parent_id':row.reply_id,
+        }
+        data_list.append(data)
+        
+    return JsonResponse({'status': True, 'data': data_list})
