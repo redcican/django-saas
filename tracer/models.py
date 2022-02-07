@@ -202,3 +202,19 @@ class IssuesType(models.Model):
     
     def __str__(self):
         return self.title
+    
+    
+class IssuesReply(models.Model):
+    """The model of issues reply system"""
+    
+    reply_type_choices = (
+        (1, 'Edit Comment'),
+        (2, 'Comment'),
+    )
+    
+    reply_type = models.SmallIntegerField(verbose_name='Reply Type', choices=reply_type_choices)
+    issues = models.ForeignKey(to='Issues', verbose_name='Issues', on_delete=models.CASCADE)
+    content = models.TextField(verbose_name='Content')
+    creator = models.ForeignKey(to='UserInfo', verbose_name='Creator', on_delete=models.CASCADE)
+    create_datetime = models.DateTimeField(verbose_name='Create Datetime', auto_now_add=True)
+    reply = models.ForeignKey(to='self', verbose_name='Reply', on_delete=models.CASCADE, null=True, blank=True)

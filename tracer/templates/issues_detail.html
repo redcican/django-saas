@@ -1,54 +1,14 @@
 {% extends 'layout/manage.html' %}
 {% load static %}
-{% load issues %}
 
 {% block css %}
  <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
  <link rel="stylesheet" href="{% static 'plugin/bootstrap-select/css/bootstrap-select.min.css' %}">
 
-<style> a {
-          text-decoration: none;
-      }
+<style> 
         .card {
             margin-top: 2rem;
-        }
-        .table {
-            margin-top: 1rem;
-        }
-        .issue-list .number{
-            width: 100px;
-            text-align: right;
-        }
-        .issue-list .number a {
-            font-weight: 500;
-            padding: 0 10px;        
-        }
-        .issue-list .issue .tags {
-            padding: 10px 0;
-        }
-        .issue-list .issue .tags span {
-            margin-right: 20px;
-            display: inline-block;
-            font-size: 15px;
-            font-weight: 400;
-        }
-        .issue-list .issue .tags .type {
-            color: #fff;
-            padding: 1px 5px;
-            border-radius: 5px;
-        }
-        .error-msg {
-            color:red;
-            position: absolute;
-            font-size: 12px;
-        }
-        label {
-            font-weight: 500;
-            text-align: center;
-        }
-        nav {
-            margin-top: 1rem;
-        }
+        } 
 </style>
 
 {% endblock css %}
@@ -56,92 +16,14 @@
 {% block content %}
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3">
+        <div class="col-sm-7">
             <div class="card">
                 <div class="card-header"> 
-                    <i class="fas fa-search"></i> Filter
-                </div>
-                <div class="card-body"></div>
-            </div>
-        </div>
-        <div class="col-sm-9">
-            <div class="card">
-                <div class="card-header">
-                    <div>
-                        <i class="fab fa-quora"></i> Questions
-                    </div>
+                    <i class="far fa-edit"></i> Update Issue
                 </div>
                 <div class="card-body">
-                    <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">New Issue</a>
-                    <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inviteModal">Invite Member</a>
-
-                    <table class="table border-top">
-                        <tbody class="issue-list">
-                            {% for item in page_obj %}
-                                <tr>
-                                    <td class="number">
-                                        <i class="fas fa-circle text-{{item.priority}}"></i>
-                                        <a target="_blank" href="{% url 'tracer:issues_detail' project_id=request.tracer.project.id issue_id=item.id %}">{% string_just item.id %}</a>
-                                    </td>
-                                    <td class="issue">
-                                        <div>
-                                            <a target="_blank" href="{% url 'tracer:issues_detail' project_id=request.tracer.project.id issue_id=item.id %}">{{ item.subject }}</a>
-                                        </div>
-                                        <div class="tags">
-                                            <span class="type" style="background-color: {% get_issue_type_color item.issues_type.title %}">
-                                                {{ item.issues_type.title }}
-                                            </span>
-                                            <span><i class="fas fa-refresh"></i> {{ item.get_status_display }}</span>
-                                            {% if item.assign %}
-                                            <span>
-                                                <i class="far fa-hand-point-right"></i> {{item.assign.username}}
-                                            </span>
-                                            {% endif %}
-                                            <span><i class="far fa-user"></i> {{item.creator.username}}</span>
-                                            {% if item.end_date %}
-                                            <span>
-                                                <i class="far fa-calendar-times"></i> {{ item.end_date }} end
-                                            </span>
-
-                                            {% endif %}
-                                            <span><i class="far fa-clock"></i> {{item.latest_update_datetime}} updated</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                     </table>
-                </div>
-            </div>
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    {% if page_obj.has_previous %}
-                     <li {% if page_obj.number == 1 %} class="page-item active" {% endif %}> <a class="page-link" href="?page=1">&laquo; 1</a></li>
-                    <li class="page-item"><a class="page-link" href="?page={{page_obj.previous_page_number }}">Previous</a></li>
-                    {% endif %}
-                    
-                    {% if page_obj.has_next %}
-                    <li class="page-item"> <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-                    <li class="page-item"> <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages}} &raquo;</a></li>
-                    
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    </div>
-
-
-    <!--Modal-->
-    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-         <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">New Issue</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                        {{ form.media }}
-                        <form id="addForm" method="POST">
+                    {{ form.media }}
+                        <form id="editForm" method="POST">
                             {% csrf_token %}
                               <div class="row mb-3">
                                 <label for="{{ form.issues_type.id_for_label }}" class="col-sm-2 col-form-label">
@@ -279,15 +161,24 @@
                                     </div>
                                 </div>
                             </div>
-                        </form>                    
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="btnAddSubmit">Add</button>
+                        </form>  
                 </div>
             </div>
         </div>
+        <div class="col-sm-5">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <i class="fas fa-history"></i> Operation History
+                    </div>
+                </div>
+                <div class="card-body">
+                   
+                </div>
+          
+        </div>
     </div>
+
 
 {% endblock content %}
 
@@ -298,23 +189,14 @@
 
 <script>
     var WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
-    var POST_ISSUES = "{% url 'tracer:issues' project_id=request.tracer.project.id %}";
 
     $( function () {
-        bindBootStrapShownEvent();
-        // initDatePicker();
-        bindAddSubmit();
+        initEditorMd();
     });
+
     /*
      * 初始化MDEditor
      */
-    function bindBootStrapShownEvent(){
-        $('#addModal').on('shown.bs.modal', function () {
-            // Modal弹出时，初始化MDEditor
-            initEditorMd();
-        })
-    }
-
     function initEditorMd(){
         editormd('editor',{
             height: 500,
@@ -323,29 +205,10 @@
             imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp","svg"],
             imageUploadURL: WIKI_UPLOAD_URL,
             path: "{% static 'plugin/editor-md/lib/' %}",
+            onload: function() {
+                this.previewing();
+            },
         })
-    }
-
-    function bindAddSubmit(){
-        $('#btnAddSubmit').click(function(){
-            $('#addForm').find('.error-msg').empty();
-            $.ajax({
-                url: POST_ISSUES,
-                type: "POST",
-                data: $('#addForm').serialize(),
-                dataType: "JSON",
-                success: function(res){
-                    if(res.status){
-                        // location.href = location.href;
-                        location.reload();
-                }else{
-                    $.each(res.error, function(key, value){
-                        $('#id_'+key).parent().next('.error-msg').text(value[0]);
-                    })
-                }
-            }
-        });
-    });
     }
 
 </script>

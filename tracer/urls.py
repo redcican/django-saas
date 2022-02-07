@@ -44,6 +44,7 @@ urlpatterns = [
             re_path('setting/delete/$',setting.setting_delete, name='setting_delete'),
             
             re_path('issues/$',issues.issues, name='issues'),
+            re_path('issues/detail/(?P<issue_id>\d+)/$',issues.issues_detail, name='issues_detail'),
 
     ])),
 ]
