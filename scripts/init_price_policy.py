@@ -1,5 +1,6 @@
 
 from tracer import models
+import base
 
 def run():
     exists = models.PricePolicy.objects.filter(category=1, title='Personal Free').exists()
@@ -16,3 +17,4 @@ def run():
         
 if __name__ == '__main__':
     run()
+    
