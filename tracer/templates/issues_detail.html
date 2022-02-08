@@ -231,7 +231,7 @@
                             <span class="error-msg"></span>
                         </div>
 
-                        <input class="btn btn-primary mb-4" type="button" id="btnSubmit" value="Send">
+                        <input class="btn btn-primary" type="button" id="btnSubmit" value="Send">
                         <div class="reply-user d-none" id="replyUser">
                             Reply <span></span>
                             <i class="fa fa-times-circle" aria-hidden="true" style="color: #9d9d9d;"></i>
@@ -255,7 +255,7 @@
                   <i class="far fa-user" aria-hidden="true"></i>
                     <span class="user"></span>
               </div>
-            <div class="msg">
+              <div class="msg">
                   <i class="far fa-clock" aria-hidden="true"></i>
                     <span class="date"></span>
               </div>
@@ -284,6 +284,9 @@
     $(function () {
         initEditorMd();
         initIssueRecord();
+        bindReply();
+        bindCancelReplyUser();
+        bindSubmit();
     });
 
     /*
@@ -336,5 +339,52 @@
             $('.comment-list').append($item);
         }
     }
+
+    /*
+     * 回复操作
+     */
+     function bindReply(){
+         $('.comment-list').on('click', '.reply', function() {
+             var $item = $(this).parent().parent().parent();
+             var id = $item.attr('id');
+             var username = $item.attr('username');
+             $('#replyUser').removeClass('d-none').attr('parent-id', id).children('span').text(username);
+         })
+     }
+
+    /*取消回复 */
+    function bindCancelReplyUser(){
+        $('#replyUser').click(function() {
+            $(this).addClass('d-none').removeAttr('parent-id').children('span').text("");
+        })
+    }
+
+    /*
+     * 提交回复
+     */
+     function bindSubmit(){
+         $('#btnSubmit').click(function(){
+            $('#commentText .error-msg').text("");
+            $.ajax({
+                url:ISSUES_RECORD_API,
+                type:"POST",
+                dataType:"JSON",
+                data: {
+                        content: $('#content').val(),
+                        reply: $('#replyUser').attr('parent-id')},
+                success: function(res){
+                    if(res.status){
+                        createRecord(res.data);
+                        $('#replyUser').addClass('d-none').removeAttr('parent-id').children('span').text("");
+                        $('#content').val("");
+                    }else{
+                        $.each(res.error, function(key, value){
+                            $('#content').next('.error-msg').text(value[0]);
+                        })
+                    }
+                }
+            });
+         })
+        }
 </script>
 {% endblock js %}

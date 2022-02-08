@@ -56,3 +56,9 @@ class IssuesModelForm(BootstrapForm, forms.ModelForm):
         parent_object_list = models.Issues.objects.filter(project=request.tracer.project).values_list('id', 'subject')
         parent_list.extend(parent_object_list)
         self.fields['parent'].choices =  parent_list
+        
+        
+class IssuesReplyModelForm(forms.ModelForm):
+    class Meta:
+        model = models.IssuesReply
+        fields = ['content', 'reply']
