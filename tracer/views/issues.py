@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from django.shortcuts import render
 from tracer import models
@@ -76,3 +77,48 @@ def issues_record(request, project_id, issue_id):
         return JsonResponse({'status': True, 'data': info})
     
     return JsonResponse({'status': False, 'error': form.errors})
+
+@csrf_exempt
+def issues_change(request, project_id, issue_id):
+    
+    issues_object = models.Issues.objects.filter(id=issue_id, project_id=project_id).first()
+    post_dict = json.loads(request.body.decode('utf-8'))
+    
+    name = post_dict.get('name')
+    value = post_dict.get('value')
+    field_object = models.Issues._meta.get_field(name)
+
+    # 1. 更新数据库字段
+    # 1.1 普通文本  only 'start_date' and 'end_date' can be empty or null
+    if name in ['subject', 'desc','start_date','end_date']:
+        if not value:
+            if not field_object.null:
+                return JsonResponse({'status': False, 'error': f"{field_object.verbose_name} can't be empty"})
+            setattr(issues_object, name, None)
+            issues_object.save()
+            change_record = f"{field_object.verbose_name} was set to empty"
+        else:
+            setattr(issues_object, name, value)
+            issues_object.save()
+            change_record = f"{field_object.verbose_name} was set to {value}"
+            
+        # 2. 更新issues_reply数据库
+        instance = models.IssuesReply.objects.create(
+            reply_type=1,
+            issues = issues_object,
+            content = change_record,
+            creator = request.tracer.user
+        )
+        data = {
+            'id': instance.id,
+            'reply_type_text': instance.get_reply_type_display(),
+            'content': instance.content,
+            'creator': instance.creator.username,
+            'datetime': instance.create_datetime.strftime('%Y-%m-%d %H:%M:%S'),
+            'parent_id': instance.reply_id,
+        }
+        return JsonResponse({'status':True, 'data': data})
+    # 1.2 ForeignKey字段， 1.3:choices字段 1.4 ManyToManyField字段
+    
+    # 2. 创建操作记录
+    return JsonResponse({'status': True})

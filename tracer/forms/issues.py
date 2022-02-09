@@ -18,9 +18,11 @@ class IssuesModelForm(BootstrapForm, forms.ModelForm):
             "parent": forms.Select(attrs={'class': "selectpicker", 'data-live-search': "true"}),
             "attention": forms.SelectMultiple(attrs={'class': "selectpicker", 'data-live-search': "true",
                                                      "data-actions-box":"true"}),
-            'start_date': DatePickerInput(),  # default date-format %m/%d/%Y will be used
-            # specify date-frmat
-            'end_date': DatePickerInput(),
+            "start_date": forms.DateTimeInput(attrs={'autocomplete': "off"}),
+            "end_date": forms.DateTimeInput(attrs={'autocomplete': "off"})
+            # 'start_date': DatePickerInput(format='%Y-%m-%d'),  # default date-format %m/%d/%Y will be used
+            # # specify date-frmat
+            # 'end_date': DatePickerInput(),
         }
         
     def __init__(self,request, *args, **kwargs):

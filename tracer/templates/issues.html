@@ -5,6 +5,7 @@
 {% block css %}
  <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
  <link rel="stylesheet" href="{% static 'plugin/bootstrap-select/css/bootstrap-select.min.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <style> a {
           text-decoration: none;
@@ -85,7 +86,8 @@
                                     </td>
                                     <td class="issue">
                                         <div>
-                                            <a target="_blank" href="{% url 'tracer:issues_detail' project_id=request.tracer.project.id issue_id=item.id %}">{{ item.subject }}</a>
+                                            <a target="_blank" href="{% url 'tracer:issues_detail' project_id=request.tracer.project.id issue_id=item.id %}">
+                                                {{ item.subject }}</a>
                                         </div>
                                         <div class="tags">
                                             <span class="type" style="background-color: {% get_issue_type_color item.issues_type.title %}">
@@ -235,8 +237,10 @@
                                         <label for="{{ form.start_date.id_for_label }}" class="col-sm-4 col-form-label">
                                             {{ form.start_date.label }}</label>
                                         <div class="col-sm-8">
-                                            <div class="input-group flex-nowrap">
-                                                {{ form.start_date}}
+                                            <div class="input-group flex-nowrap">  
+                                                <span class="input-group-text" id="addon-wrapping">
+                                                    <i class="fa-solid fa-calendar-days"></i> </span>
+                                                {{ form.start_date }}
                                             </div>
                                             <span class="error-msg"></span>
                                         </div>
@@ -248,7 +252,10 @@
                                             {{ form.end_date.label }}</label>
                                         <div class="col-sm-8">
                                             <div class="input-group flex-nowrap">
-                                                {{ form.end_date}}
+               
+                                               <span class="input-group-text" id="addon-wrapping">
+                                                    <i class="fa-solid fa-calendar-days"></i> </span>
+                                                    {{ form.end_date }}
                                             </div>
                                             <span class="error-msg"></span>
                                         </div>
@@ -295,6 +302,7 @@
 <script src="{% static 'plugin/editor-md/editormd.min.js' %}"></script>
 <script src="{% static 'plugin/editor-md/languages/en.js' %}"></script>
 <script src="{% static 'plugin/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
     var WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
@@ -302,9 +310,21 @@
 
     $( function () {
         bindBootStrapShownEvent();
-        // initDatePicker();
+        initDatePicker();
         bindAddSubmit();
     });
+           /*
+        添加对话框：初始化时间选择
+         */
+    function initDatePicker() {
+
+            $('#id_start_date,#id_end_date').datepicker({
+                format: 'yyyy-mm-dd',
+                startDate: '0',
+                autoclose: true,
+                todayHighlight: true,
+            });
+        }
     /*
      * 初始化MDEditor
      */

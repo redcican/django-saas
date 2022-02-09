@@ -12,7 +12,7 @@ class BootstrapForm(object):
                 continue
             
             old_class = field.widget.attrs.get('class',"")
-            if old_class: 
+            if old_class and old_class != 'form-control': 
                 field.widget.attrs['class'] = '{} form-control'.format(old_class)
             else:
                 field.widget.attrs['class'] = 'form-control'
