@@ -83,10 +83,29 @@ def issues_change(request, project_id, issue_id):
     
     issues_object = models.Issues.objects.filter(id=issue_id, project_id=project_id).first()
     post_dict = json.loads(request.body.decode('utf-8'))
-    
+
     name = post_dict.get('name')
     value = post_dict.get('value')
     field_object = models.Issues._meta.get_field(name)
+
+    def create_reply_record(change_record):
+        new_object = models.IssuesReply.objects.create(
+            reply_type=1,
+            issues = issues_object,
+            content = change_record,
+            creator = request.tracer.user
+        )
+        data = {
+            'id': new_object.id,
+            'reply_type_text': new_object.get_reply_type_display(),
+            'content': new_object.content,
+            'creator': new_object.creator.username,
+            'datetime': new_object.create_datetime.strftime('%Y-%m-%d %H:%M:%S'),
+            'parent_id': new_object.reply_id,
+        }
+        
+        return data
+    
 
     # 1. 更新数据库字段
     # 1.1 普通文本  only 'start_date' and 'end_date' can be empty or null
@@ -103,22 +122,94 @@ def issues_change(request, project_id, issue_id):
             change_record = f"{field_object.verbose_name} was set to {value}"
             
         # 2. 更新issues_reply数据库
-        instance = models.IssuesReply.objects.create(
-            reply_type=1,
-            issues = issues_object,
-            content = change_record,
-            creator = request.tracer.user
-        )
-        data = {
-            'id': instance.id,
-            'reply_type_text': instance.get_reply_type_display(),
-            'content': instance.content,
-            'creator': instance.creator.username,
-            'datetime': instance.create_datetime.strftime('%Y-%m-%d %H:%M:%S'),
-            'parent_id': instance.reply_id,
-        }
+        data = create_reply_record(change_record)
         return JsonResponse({'status':True, 'data': data})
-    # 1.2 ForeignKey字段， 1.3:choices字段 1.4 ManyToManyField字段
     
-    # 2. 创建操作记录
-    return JsonResponse({'status': True})
+    # 1.2 ForeignKey字段， ('assign'要判断是否创建者或参与者)
+    if name in ['issues_type', 'module','parent','assign']:
+        if not value:
+            # 不允许为空
+            if not field_object.null:
+                return JsonResponse({'status': False, 'error': f"{field_object.verbose_name} can't be empty"})
+            setattr(issues_object, name, None)
+            issues_object.save()
+            change_record = f"{field_object.verbose_name} was set to empty"
+        else:
+            if name == 'assign':
+                # 是否为项目创建者
+                if value == str(request.tracer.project.creator_id):
+                    instance = request.tracer.project.creator
+                else:    
+                # 是否为项目参与者
+                    project_user_object = models.ProjectUser.objects.filter(project_id=project_id, user_id=value).first()
+                    if project_user_object:
+                        instance = project_user_object.user
+                    else:
+                        instance = None
+                if not instance:
+                    return JsonResponse({'status': False, 'error': f"{field_object.verbose_name} is not exist"})
+                
+                setattr(issues_object, name, instance)
+                issues_object.save()
+                change_record = f"{field_object.verbose_name} was set to {str(instance)}"
+                
+            else:
+                instance = field_object.remote_field.model.objects.filter(id=value, project_id=project_id).first()
+                if not instance:
+                    return JsonResponse({'status': False, 'error': f"{field_object.verbose_name} is not exist"})
+                setattr(issues_object, name, instance)
+                issues_object.save()
+                change_record = f"{field_object.verbose_name} was set to {str(instance)} "
+            
+        # 2. 创建操作记录
+        data = create_reply_record(change_record)
+        return JsonResponse({'status':True, 'data': data})
+    
+    # 1.3:choices字段 
+    if name in ['status', 'priority', 'mode']:
+        selected_text = None
+        for key, text in field_object.choices:
+            if str(key) == value:
+                selected_text = text
+        if not selected_text:
+            return JsonResponse({'status': False, 'error': f"{field_object.verbose_name} is not exist"})
+        
+        setattr(issues_object, name, value)
+        issues_object.save()
+        change_record = f"{field_object.verbose_name} was set to {selected_text}"
+        return JsonResponse({'status':True, 'data': create_reply_record(change_record)})
+    
+    # 1.4 ManyToManyField字段
+    if name == "attention":
+        # {"name": "attention", "value": "[1,2,3]"}
+        if not isinstance(value, list):
+            return JsonResponse({'status': False, 'error': f"{field_object.verbose_name} is not exist"})
+        
+        if not value:
+            issues_object.attention.set(value)
+            issues_object.save()
+            change_record = f"{field_object.verbose_name} was set to empty"
+            
+        else: 
+            # value: [1,2,3] -> 判断id是否为项目成员 (参与者或创建者)
+            # 获取当前项目的所有成员
+            user_dict = {str(request.tracer.project.creator_id): request.tracer.project.creator.username}
+            project_user_list = models.ProjectUser.objects.filter(project_id=project_id)
+            for item in project_user_list:
+                user_dict[str(item.user_id)] = item.user.username
+            
+            username_list = []
+            for user_id in value:
+                username = user_dict.get(str(user_id))
+                if not username:
+                    return JsonResponse({'status': False, 'error':'User is not exist, please check again'})
+                username_list.append(username)
+                
+            issues_object.attention.set(value)
+            issues_object.save()
+            change_record = f"{field_object.verbose_name} was set to {','.join(username_list)}"
+            
+        return JsonResponse({'status':True, 'data': create_reply_record(change_record)})
+            
+    return JsonResponse({'status': False, 'error': 'Invalid field name'})
+
