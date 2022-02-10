@@ -13,7 +13,8 @@ core/local_settings.py
 # database migration files 
 */migrations/*.py
 !*/migrations/__init__.py
-# If you are using PyCharm # 
+# If you are using PyCharm #
+.idea/
 .idea/**/workspace.xml 
 .idea/**/tasks.xml 
 .idea/dictionaries 
