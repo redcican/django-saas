@@ -251,7 +251,8 @@
                 </div>
             </div>
 </div>
-
+    </div>
+    </div>
 <div class="d-none" id="recordTemplate">
   <div class="item clearfix">
       <div class="left-avatar"></div>
@@ -290,10 +291,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
-    var WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
-    var ISSUES_RECORD_API = "{% url 'tracer:issues_record' project_id=request.tracer.project.id issue_id=issues_object.id %}";
-    var ISSUES_CHANGE_API = "{% url 'tracer:issues_change' project_id=request.tracer.project.id issue_id=issues_object.id %}";
-    var EDITOR;
+    let WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
+    let ISSUES_RECORD_API = "{% url 'tracer:issues_record' project_id=request.tracer.project.id issue_id=issues_object.id %}";
+    let ISSUES_CHANGE_API = "{% url 'tracer:issues_change' project_id=request.tracer.project.id issue_id=issues_object.id %}";
+    let EDITOR;
 
     $(function () {
         initEditorMd();
@@ -355,7 +356,7 @@
     }
     /*创建操作记录的函数 */
     function createRecordNode(nodeDict){
-        var $item = $("#recordTemplate").find('.item').clone();
+        let $item = $("#recordTemplate").find('.item').clone();
         $item.find('.left-avatar').html(nodeDict.creator[0].toUpperCase());
         $item.find('pre').html(nodeDict.content);
         $item.find('.user').html(nodeDict.creator);
@@ -423,9 +424,9 @@
     function bindChangeIssues() {
         $('#editForm').find('.form-control').change(function () {
             // 内容变更
-            var toSend = $(this).val()
+            let toSend = $(this).val()
             if(toSend !== ""){
-                var postDict = {name: $(this).attr('name'), value: toSend};
+                let postDict = {name: $(this).attr('name'), value: toSend};
                 postAjaxData(postDict);
             }    
 
@@ -433,7 +434,7 @@
     }
 
     function saveDesc() {
-        var postDict = {name: 'desc', value: EDITOR.getValue()};
+        let postDict = {name: 'desc', value: EDITOR.getValue()};
         postAjaxData(postDict);
     }
 
