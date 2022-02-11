@@ -2,7 +2,6 @@ from django import forms
 from tracer import models
 from tracer.forms.bootstrap import BootstrapForm
 from tracer.models import Issues
-from bootstrap_datepicker_plus.widgets import DatePickerInput
 
 
 

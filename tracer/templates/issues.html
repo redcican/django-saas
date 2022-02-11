@@ -7,7 +7,8 @@
  <link rel="stylesheet" href="{% static 'plugin/bootstrap-select/css/bootstrap-select.min.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-<style> a {
+<style>
+    a {
           text-decoration: none;
       }
         .card {
@@ -50,6 +51,29 @@
         nav {
             margin-top: 1rem;
         }
+        .filter_area .item {
+            margin-bottom: 1rem;
+        }
+        .filter_area .item .title {
+            padding: 5px 0;
+            font-weight: 400;
+        }
+        .filter_area .item .check-list a {
+            text-decoration: none;
+            display: inline-block;
+            min-width: 65px;
+        }
+        .filter_area .item .check-list label {
+            font-weight: 300;
+            font-size: 15px;
+            margin-left: 5px;
+        }
+        .filter_area .item .check-list a:hover {
+            font-weight: 300;
+        }
+        .filter_area .item .check-list .cell {
+            margin-right: 10px;
+        }
 </style>
 
 {% endblock css %}
@@ -62,7 +86,28 @@
                 <div class="card-header"> 
                     <i class="fas fa-search"></i> Filter
                 </div>
-                <div class="card-body"></div>
+                <div class="card-body filter_area">
+                    <div class="item">
+                        <div class="title">
+                            <i class="fas fa-tags"></i> Status
+                        </div>
+                        <div class="check-list">
+                            {% for tag in status_filter %}
+                                {{ tag }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                   <div class="item">
+                        <div class="title">
+                            <i class="fa-solid fa-list-ol"></i> Priority
+                        </div>
+                        <div class="check-list">
+                            {% for tag in priority_filter %}
+                                {{ tag }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-sm-9">
@@ -143,7 +188,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                        {{ form.media }}
                         <form id="addForm" method="POST">
                             {% csrf_token %}
                               <div class="row mb-3">

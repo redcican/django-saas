@@ -5,19 +5,80 @@ from tracer import models
 from tracer.forms.issues import IssuesModelForm, IssuesReplyModelForm
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.safestring import mark_safe
+
+
+class CheckFilter:
+    def __init__(self, request, name, data_list):
+        """
+        :param request: 请求对象
+        :param name: 要创建的checkbox的name
+        :param data_list: 在数据库中预定义的tuple类型的数据
+        """
+        self.data_list = data_list
+        self.name = name
+        self.request = request
+
+    def __iter__(self):
+        for item in self.data_list:
+            key, text = str(item[0]), item[1]
+            ck = ""
+            # 如果当前用户请求的url中包含key，则选中
+            value_list = self.request.GET.getlist(self.name)
+            if key in value_list:
+                ck = "checked"
+                value_list.remove(key)
+            else:
+                value_list.append(key)
+
+            # 将当前的key和value_list放入到request中
+            query_dict = self.request.GET.copy()
+            query_dict._mutable = True
+            query_dict.setlist(self.name, value_list)
+
+            url = "{0}?{1}".format(self.request.path_info, query_dict.urlencode())
+
+            tpl = '<a class="cell" href="{url}"><input type="checkbox" onclick="return false;" {ck} /><label>{' \
+                  'text}</label></a> '
+            html = tpl.format(url=url, ck=ck, text=text)
+            yield mark_safe(html)
+            # yield text
 
 
 def issues(request, project_id):
     if request.method == 'GET':
+
+        allow_filter_list = ['status', 'priority', 'issues_type']
+        # 筛选条件
+        # ?status=1&status=2&priority=2&issues_type=3
+        filter_dict = {}
+        for name in allow_filter_list:
+            value_list = request.GET.getlist(name)  # ['1', '2']
+            if not value_list:
+                continue
+            filter_dict[f"{name}__in"] = value_list
+        """
+        condition = {
+        'status__in': ['1', '2'],
+        'priority__in': ['2'],
+        }
+        """
+
         form = IssuesModelForm(request)
 
-        issue_object_list = models.Issues.objects.filter(project_id=project_id).order_by('create_datetime')
+        issue_object_list = models.Issues.objects.filter(project_id=project_id).filter(
+            **filter_dict).order_by('create_datetime')
 
         paginator = Paginator(issue_object_list, 5)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        return render(request, 'issues.html', {'form': form, 'page_obj': page_obj})
+        return render(request, 'issues.html', {
+            'form': form,
+            'page_obj': page_obj,
+            'status_filter': CheckFilter(request, 'status', models.Issues.status_choices),
+            'priority_filter': CheckFilter(request, 'priority', models.Issues.priority_choices),
+        })
 
     form = IssuesModelForm(request, data=request.POST)
     if form.is_valid():
@@ -95,7 +156,7 @@ def issues_change(request, project_id, issue_id):
             content=change_record,
             creator=request.tracer.user
         )
-        data = {
+        data_to_send = {
             'id': new_object.id,
             'reply_type_text': new_object.get_reply_type_display(),
             'content': new_object.content,
@@ -104,7 +165,7 @@ def issues_change(request, project_id, issue_id):
             'parent_id': new_object.reply_id,
         }
 
-        return data
+        return data_to_send
 
     # 1. 更新数据库字段
     # 1.1 普通文本  only 'start_date' and 'end_date' can be empty or null
