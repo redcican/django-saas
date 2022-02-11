@@ -36,19 +36,26 @@ class CheckFilter:
             query_dict._mutable = True
             query_dict.setlist(self.name, value_list)
 
-            url = "{0}?{1}".format(self.request.path_info, query_dict.urlencode())
+            if 'page' in query_dict:
+                query_dict.pop('page')
 
-            tpl = '<a class="cell" href="{url}"><input type="checkbox" onclick="return false;" {ck} /><label>{' \
-                  'text}</label></a> '
-            html = tpl.format(url=url, ck=ck, text=text)
-            yield mark_safe(html)
-            # yield text
+            param_url = query_dict.urlencode()
+            if param_url:
+                url = "{0}?{1}".format(self.request.path_info, query_dict.urlencode())
+            else:
+                url = self.request.path_info
+
+            # tpl = '<a class="cell" href="{url}"><input type="checkbox" {ck} /><label>{' \
+            #       'text}</label></a>'
+            # html = tpl.format(url=url, ck=ck, text=text)
+            # yield mark_safe(html)
+            yield {"text": text, "url": url, "ck": ck}
 
 
 def issues(request, project_id):
     if request.method == 'GET':
 
-        allow_filter_list = ['status', 'priority', 'issues_type']
+        allow_filter_list = ['status', 'priority']
         # 筛选条件
         # ?status=1&status=2&priority=2&issues_type=3
         filter_dict = {}
@@ -73,11 +80,18 @@ def issues(request, project_id):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
+        choices_filter = []
+        for name in allow_filter_list:
+            choices_filter.append({
+                'name': name.title(),
+                'choices': CheckFilter(request, name, models.Issues._meta.get_field(name).choices)})
+
         return render(request, 'issues.html', {
             'form': form,
             'page_obj': page_obj,
-            'status_filter': CheckFilter(request, 'status', models.Issues.status_choices),
-            'priority_filter': CheckFilter(request, 'priority', models.Issues.priority_choices),
+            # 'status_filter': CheckFilter(request, 'status', models.Issues.status_choices),
+            # 'priority_filter': CheckFilter(request, 'priority', models.Issues.priority_choices),
+            'choices_filter': choices_filter,
         })
 
     form = IssuesModelForm(request, data=request.POST)

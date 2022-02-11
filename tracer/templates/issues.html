@@ -87,26 +87,28 @@
                     <i class="fas fa-search"></i> Filter
                 </div>
                 <div class="card-body filter_area">
-                    <div class="item">
-                        <div class="title">
-                            <i class="fas fa-tags"></i> Status
+                    {% for item in choices_filter %}
+                        <div class="item">
+                            <div class="title">
+                                <i class="fas fa-tags"></i> {{ item.name }}
+                            </div>
+                            <div class="check-list">
+                                {% for choice in item.choices %}
+                                    <a class="cell" href="{{ choice.url }}"><input type="checkbox" {{ choice.ck }} /><label>{{ choice.text }}</label></a>
+                                    {% endfor %}
+                                    </div>
                         </div>
-                        <div class="check-list">
-                            {% for tag in status_filter %}
-                                {{ tag }}
-                            {% endfor %}
-                        </div>
-                    </div>
-                   <div class="item">
-                        <div class="title">
-                            <i class="fa-solid fa-list-ol"></i> Priority
-                        </div>
-                        <div class="check-list">
-                            {% for tag in priority_filter %}
-                                {{ tag }}
-                            {% endfor %}
-                        </div>
-                    </div>
+                    {% endfor %}
+{#                   <div class="item">#}
+{#                        <div class="title">#}
+{#                            <i class="fa-solid fa-list-ol"></i> Priority#}
+{#                        </div>#}
+{#                        <div class="check-list">#}
+{#                            {% for tag in priority_filter %}#}
+{#                                <a class="cell" href="{{ tag.url }}"><input type="checkbox" {{ tag.ck }} /><label>{{ tag.text }}</label></a>#}
+{#                            {% endfor %}#}
+{#                        </div>#}
+{#                    </div>#}
                 </div>
             </div>
         </div>
@@ -357,6 +359,7 @@
         bindBootStrapShownEvent();
         initDatePicker();
         bindAddSubmit();
+        bindClickCheckFilter();
     });
            /*
         添加对话框：初始化时间选择
@@ -411,6 +414,12 @@
             }
         });
     });
+    }
+
+    function bindClickCheckFilter(){
+        $('.filter_area').find(':checkbox').click(function(){
+            location.href = $(this).parent().attr('href');
+        })
     }
 
 </script>

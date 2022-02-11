@@ -142,9 +142,9 @@ class Issues(models.Model):
     desc = models.TextField(verbose_name='Description', null=True, blank=True)
     
     priority_choices = (
-        ("danger", "high"),
-        ("warning", "middle"),
-        ("success", "low"),
+        ("danger", "High"),
+        ("warning", "Middle"),
+        ("success", "Low"),
     )  
     priority = models.CharField(verbose_name='Priority', max_length=16, choices=priority_choices, default='danger')
     
