@@ -83,7 +83,7 @@ def issues(request, project_id):
         choices_filter = []
         for name in allow_filter_list:
             choices_filter.append({
-                'name': name.title(),
+                'name': name,
                 'choices': CheckFilter(request, name, models.Issues._meta.get_field(name).choices)})
 
         return render(request, 'issues.html', {

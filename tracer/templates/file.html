@@ -121,7 +121,7 @@
               {% endif %}
             </td>
             <td>
-              {% if item.file_type == 1 %} {{ item.file_size }} {% else %} - {% endif %}
+              {% if item.file_type == 1 %} {{ item.file_size|filesizeformat }} {% else %} - {% endif %}
             </td>
             <td>{{ item.update_user.username }}</td>
             <td>{{ item.update_datetime }}</td>

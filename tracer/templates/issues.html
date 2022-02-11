@@ -90,7 +90,11 @@
                     {% for item in choices_filter %}
                         <div class="item">
                             <div class="title">
-                                <i class="fas fa-tags"></i> {{ item.name }}
+                                {% if item.name == 'status' %}
+                                <i class="fas fa-tags"></i> {{ item.name|capfirst }}
+                                {% else %}
+                                <i class="fa-solid fa-list-ol"></i> {{ item.name|capfirst }}
+                                {% endif %}
                             </div>
                             <div class="check-list">
                                 {% for choice in item.choices %}
