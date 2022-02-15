@@ -56,52 +56,10 @@ class CheckSelectFilter:
             yield {"text": text, "url": url, "check_or_select": check_or_select}
 
 
-'''
-class SelectFilter:
-    def __init__(self, request, name, data_list):
-        """
-        :param request: 请求对象
-        :param name: 要创建的select的name
-        :param data_list: 在数据库中预定义的tuple类型的数据
-        """
-        self.data_list = data_list
-        self.name = name
-        self.request = request
-
-    def __iter__(self):
-        for item in self.data_list:
-            key, text = str(item[0]), item[1]
-            selected = ""
-            # 如果当前用户请求的url中包含key，则选中
-            value_list = self.request.GET.getlist(self.name)
-            if key in value_list:
-                selected = "selected"
-                value_list.remove(key)
-            else:
-                value_list.append(key)
-
-            # 将当前的key和value_list放入到request中
-            query_dict = self.request.GET.copy()
-            query_dict._mutable = True
-            query_dict.setlist(self.name, value_list)
-
-            if 'page' in query_dict:
-                query_dict.pop('page')
-
-            param_url = query_dict.urlencode()
-            if param_url:
-                url = "{0}?{1}".format(self.request.path_info, query_dict.urlencode())
-            else:
-                url = self.request.path_info
-
-            yield {"text": text, "url": url, "selected": selected}
-'''
-
-
 def issues(request, project_id):
     if request.method == 'GET':
 
-        allow_filter_list = ['status', 'priority', 'issues_type', 'assign']
+        allow_filter_list = ['status', 'priority', 'issues_type', 'assign', 'attention']
         # 筛选条件
         # ?status=1&status=2&priority=2&issues_type=3
         filter_dict = {}
@@ -128,6 +86,7 @@ def issues(request, project_id):
 
         # 创建checkbox for status and priority
         all_filter = []
+
         for name in ['status', 'priority']:
             all_filter.append({
                 'name': name,
@@ -147,7 +106,8 @@ def issues(request, project_id):
         project_total_user.extend(project_join_user)
 
         # 创建select for assign
-        all_filter.append({'name': 'assign', 'choices': CheckSelectFilter(request, 'assign', project_total_user,
+        for name in ['assign', 'attention']:
+            all_filter.append({'name': name, 'choices': CheckSelectFilter(request, name, project_total_user,
                                                                           filter_type="Select")})
 
         return render(request, 'issues.html', {

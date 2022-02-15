@@ -109,7 +109,11 @@
                         {% else %}
                             <div class="item">
                                 <div class="title">
+                                    {% if item.name == 'assign' %}
                                     <i class="fa-solid fa-hand-point-right"></i> {{ item.name|capfirst }}
+                                    {% else %}
+                                    <i class="fa-solid fa-people-carry-box"></i> {{ item.name|capfirst }}
+                                    {% endif %}
                                 </div>
                                 <div class="check-list">
                                     {% for choice in item.choices %}
@@ -438,7 +442,8 @@
     }
 
     function initSelect2(){
-        $('.select2').select2({}).on('select2:select',function(e){
+        $('.select2').select2({
+        }).on('select2:select',function(e){
             // 选中某个值后，触发change事件
             location.href = e.params.data.id;
         }).on('select2:unselect', function(e){
