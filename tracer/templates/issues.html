@@ -75,6 +75,12 @@
         .filter_area .item .check-list .cell {
             margin-right: 10px;
         }
+    .modal .modal-dialog .modal-content .modal-body .col-form-label {
+            font-weight: 500;
+        }
+    .modal .modal-dialog .modal-body .form-label {
+            font-weight: 500;
+        }
 </style>
 
 {% endblock css %}
@@ -198,7 +204,7 @@
     </div>
 
 
-    <!--Modal-->
+    <!--Modal Edit Issue-->
     <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
          <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -360,6 +366,36 @@
         </div>
     </div>
 
+
+    <!--Modal invite member-->
+    <div class="modal fade" id="inviteModal" tabindex="-1" aria-hidden="true">
+         <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Invite Member</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                        <form id="inviteForm">
+                            {% csrf_token %}
+                            {% for item in invite_form %}
+                              <div class="mb-3">
+                                <label for="{{ item.id_for_label }}" class="form-label"> {{ item.label }}</label>
+                                  <span>
+                                      {% if item.help_text %}
+                                        ({{ item.help_text }})
+                                      {% endif %}
+                                  </span>
+                                    {{ item }}
+                                    <span class="error-msg"></span>
+                              </div>
+                            {% endfor %}
+                            <button type="button" class="btn btn-primary" id="btnGenInviteCode">Generate Invite Code</button>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 {% block js %}
@@ -384,7 +420,6 @@
         添加对话框：初始化时间选择
          */
     function initDatePicker() {
-
             $('#id_start_date,#id_end_date').datepicker({
                 format: 'yyyy-mm-dd',
                 startDate: '0',

@@ -2,7 +2,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render
 from tracer import models
-from tracer.forms.issues import IssuesModelForm, IssuesReplyModelForm
+from tracer.forms.issues import *
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -110,10 +110,14 @@ def issues(request, project_id):
             all_filter.append({'name': name, 'choices': CheckSelectFilter(request, name, project_total_user,
                                                                           filter_type="Select")})
 
+        # invite project member
+        invite_form = InviteModelForm()
+
         return render(request, 'issues.html', {
             'form': form,
             'page_obj': page_obj,
             'all_filter': all_filter,
+            'invite_form': invite_form,
         })
 
     form = IssuesModelForm(request, data=request.POST)
@@ -309,3 +313,4 @@ def issues_change(request, project_id, issue_id):
         return JsonResponse({'status': True, 'data': create_reply_record(change_record)})
 
     return JsonResponse({'status': False, 'error': 'Invalid field name'})
+
