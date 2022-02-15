@@ -5,28 +5,32 @@ from tracer import models
 from tracer.forms.issues import IssuesModelForm, IssuesReplyModelForm
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.safestring import mark_safe
 
 
-class CheckFilter:
-    def __init__(self, request, name, data_list):
+class CheckSelectFilter:
+    def __init__(self, request, name, data_list, filter_type):
         """
         :param request: 请求对象
         :param name: 要创建的checkbox的name
         :param data_list: 在数据库中预定义的tuple类型的数据
+        :param filter_type: Checkbox or Select
         """
         self.data_list = data_list
         self.name = name
         self.request = request
+        self.filter_type = filter_type
 
     def __iter__(self):
         for item in self.data_list:
             key, text = str(item[0]), item[1]
-            ck = ""
+            check_or_select = ""
             # 如果当前用户请求的url中包含key，则选中
             value_list = self.request.GET.getlist(self.name)
             if key in value_list:
-                ck = "checked"
+                if self.filter_type == 'Checkbox':
+                    check_or_select = "checked"
+                else:
+                    check_or_select = "selected"
                 value_list.remove(key)
             else:
                 value_list.append(key)
@@ -49,13 +53,55 @@ class CheckFilter:
             #       'text}</label></a>'
             # html = tpl.format(url=url, ck=ck, text=text)
             # yield mark_safe(html)
-            yield {"text": text, "url": url, "ck": ck}
+            yield {"text": text, "url": url, "check_or_select": check_or_select}
+
+
+'''
+class SelectFilter:
+    def __init__(self, request, name, data_list):
+        """
+        :param request: 请求对象
+        :param name: 要创建的select的name
+        :param data_list: 在数据库中预定义的tuple类型的数据
+        """
+        self.data_list = data_list
+        self.name = name
+        self.request = request
+
+    def __iter__(self):
+        for item in self.data_list:
+            key, text = str(item[0]), item[1]
+            selected = ""
+            # 如果当前用户请求的url中包含key，则选中
+            value_list = self.request.GET.getlist(self.name)
+            if key in value_list:
+                selected = "selected"
+                value_list.remove(key)
+            else:
+                value_list.append(key)
+
+            # 将当前的key和value_list放入到request中
+            query_dict = self.request.GET.copy()
+            query_dict._mutable = True
+            query_dict.setlist(self.name, value_list)
+
+            if 'page' in query_dict:
+                query_dict.pop('page')
+
+            param_url = query_dict.urlencode()
+            if param_url:
+                url = "{0}?{1}".format(self.request.path_info, query_dict.urlencode())
+            else:
+                url = self.request.path_info
+
+            yield {"text": text, "url": url, "selected": selected}
+'''
 
 
 def issues(request, project_id):
     if request.method == 'GET':
 
-        allow_filter_list = ['status', 'priority']
+        allow_filter_list = ['status', 'priority', 'issues_type', 'assign']
         # 筛选条件
         # ?status=1&status=2&priority=2&issues_type=3
         filter_dict = {}
@@ -80,18 +126,34 @@ def issues(request, project_id):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        choices_filter = []
-        for name in allow_filter_list:
-            choices_filter.append({
+        # 创建checkbox for status and priority
+        all_filter = []
+        for name in ['status', 'priority']:
+            all_filter.append({
                 'name': name,
-                'choices': CheckFilter(request, name, models.Issues._meta.get_field(name).choices)})
+                'choices': CheckSelectFilter(request, name, models.Issues._meta.get_field(name).choices,
+                                             filter_type="Checkbox")})
+
+        # 创建checkbox for issues_type
+        project_issues_type = models.IssuesType.objects.filter(project_id=project_id).values_list('id', 'title')
+        choices_issues_type = CheckSelectFilter(request, 'issues_type', project_issues_type, filter_type="Checkbox")
+
+        all_filter.append({'name': 'issues_type', 'choices': choices_issues_type})
+
+        # 当前用户所在项目的所有用户(创建者和参与者)
+        project_total_user = [(request.tracer.project.creator_id, request.tracer.project.creator.username)]
+        project_join_user = models.ProjectUser.objects.filter(project_id=project_id). \
+            values_list('user_id', 'user__username')
+        project_total_user.extend(project_join_user)
+
+        # 创建select for assign
+        all_filter.append({'name': 'assign', 'choices': CheckSelectFilter(request, 'assign', project_total_user,
+                                                                          filter_type="Select")})
 
         return render(request, 'issues.html', {
             'form': form,
             'page_obj': page_obj,
-            # 'status_filter': CheckFilter(request, 'status', models.Issues.status_choices),
-            # 'priority_filter': CheckFilter(request, 'priority', models.Issues.priority_choices),
-            'choices_filter': choices_filter,
+            'all_filter': all_filter,
         })
 
     form = IssuesModelForm(request, data=request.POST)

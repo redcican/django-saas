@@ -4,8 +4,9 @@
 
 {% block css %}
  <link rel="stylesheet" href="{% static 'plugin/editor-md/css/editormd.min.css' %}">
- <link rel="stylesheet" href="{% static 'plugin/bootstrap-select/css/bootstrap-select.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugin/bootstrap-select/css/bootstrap-select.min.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"/>
 
 <style>
     a {
@@ -44,7 +45,7 @@
             position: absolute;
             font-size: 12px;
         }
-        label {
+        .card label {
             font-weight: 500;
             text-align: center;
         }
@@ -52,11 +53,11 @@
             margin-top: 1rem;
         }
         .filter_area .item {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
         .filter_area .item .title {
             padding: 5px 0;
-            font-weight: 400;
+            font-weight: 300;
         }
         .filter_area .item .check-list a {
             text-decoration: none;
@@ -64,7 +65,7 @@
             min-width: 65px;
         }
         .filter_area .item .check-list label {
-            font-weight: 300;
+            font-weight: 200;
             font-size: 15px;
             margin-left: 5px;
         }
@@ -87,32 +88,40 @@
                     <i class="fas fa-search"></i> Filter
                 </div>
                 <div class="card-body filter_area">
-                    {% for item in choices_filter %}
+                    {% for item in all_filter %}
+                        {% if item.choices.filter_type == 'Checkbox' %}
                         <div class="item">
                             <div class="title">
                                 {% if item.name == 'status' %}
-                                <i class="fas fa-tags"></i> {{ item.name|capfirst }}
-                                {% else %}
-                                <i class="fa-solid fa-list-ol"></i> {{ item.name|capfirst }}
+                                    <i class="fas fa-tags"></i> {{ item.name|capfirst }}
+                                {% elif item.name == 'priority' %}
+                                    <i class="fa-solid fa-bookmark"></i> {{ item.name|capfirst }}
+                                {% else%}
+                                    <i class="fa-solid fa-tape"></i> Issues type
                                 {% endif %}
                             </div>
                             <div class="check-list">
                                 {% for choice in item.choices %}
-                                    <a class="cell" href="{{ choice.url }}"><input type="checkbox" {{ choice.ck }} /><label>{{ choice.text }}</label></a>
-                                    {% endfor %}
-                                    </div>
+                                    <a class="cell" href="{{ choice.url }}"><input type="checkbox" {{ choice.check_or_select }} /><label>{{ choice.text }}</label></a>
+                                {% endfor %}
+                             </div>
                         </div>
+                        {% else %}
+                            <div class="item">
+                                <div class="title">
+                                    <i class="fa-solid fa-hand-point-right"></i> {{ item.name|capfirst }}
+                                </div>
+                                <div class="check-list">
+                                    {% for choice in item.choices %}
+                                        <select class="select2" multiple="multiple" style="width: 100%">
+                                            <option value="{{ choice.url }}" {{ choice.check_or_select }}>{{ choice.text }}</option>
+                                        </select>
+                                    {% endfor %}
+                                 </div>
+                        </div>
+                        {% endif %}
                     {% endfor %}
-{#                   <div class="item">#}
-{#                        <div class="title">#}
-{#                            <i class="fa-solid fa-list-ol"></i> Priority#}
-{#                        </div>#}
-{#                        <div class="check-list">#}
-{#                            {% for tag in priority_filter %}#}
-{#                                <a class="cell" href="{{ tag.url }}"><input type="checkbox" {{ tag.ck }} /><label>{{ tag.text }}</label></a>#}
-{#                            {% endfor %}#}
-{#                        </div>#}
-{#                    </div>#}
+
                 </div>
             </div>
         </div>
@@ -354,6 +363,7 @@
 <script src="{% static 'plugin/editor-md/languages/en.js' %}"></script>
 <script src="{% static 'plugin/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
     var WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
@@ -364,6 +374,7 @@
         initDatePicker();
         bindAddSubmit();
         bindClickCheckFilter();
+        initSelect2();
     });
            /*
         添加对话框：初始化时间选择
@@ -426,5 +437,14 @@
         })
     }
 
+    function initSelect2(){
+        $('.select2').select2({}).on('select2:select',function(e){
+            // 选中某个值后，触发change事件
+            location.href = e.params.data.id;
+        }).on('select2:unselect', function(e){
+            // 移除某个值后，触发change事件
+            location.href = e.params.data.id;
+        });
+    }
 </script>
 {% endblock js %}
