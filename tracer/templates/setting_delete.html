@@ -10,8 +10,10 @@
         }
         .error-msg {
             color:red;
-            position: absolute;
-            font-size: 12px;
+        }
+        strong {
+            font-weight: bold;
+            color: #d63384;
         }
 </style>
 
@@ -45,11 +47,11 @@
                     <form method="POST">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label class="form-label">Project Name</label>
+                            <label class="form-label">Please type <strong>{{ original_project_name }}</strong> to confirm.</label>
                             <input type="text" class="form-control" id="exampleInputEmail1"
                               name="project_name">
-                            <div id="emailHelp" class="form-text">This action cannot be reverted!</div>
-                            <span class="error-msg">{{ error }}</span>
+                            <div id="emailHelp" class="form-text">This action cannot be reverted! <span class="error-msg">{{ error }}</span></div>
+
                         </div>
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
