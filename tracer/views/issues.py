@@ -5,7 +5,8 @@ from tracer import models
 from tracer.forms.issues import *
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
-
+from utils.encrypt import uid
+from django.urls import reverse
 
 class CheckSelectFilter:
     def __init__(self, request, name, data_list, filter_type):
@@ -118,17 +119,19 @@ def issues(request, project_id):
             'page_obj': page_obj,
             'all_filter': all_filter,
             'invite_form': invite_form,
+
         })
 
-    form = IssuesModelForm(request, data=request.POST)
-    if form.is_valid():
-        form.instance.project = request.tracer.project
-        form.instance.creator = request.tracer.user
-        form.save()
+    else:
+        form = IssuesModelForm(request, data=request.POST)
+        if form.is_valid():
+            form.instance.project = request.tracer.project
+            form.instance.creator = request.tracer.user
+            form.save()
 
-        return JsonResponse({'status': True})
+            return JsonResponse({'status': True})
 
-    return JsonResponse({'status': False, 'error': form.errors})
+        return JsonResponse({'status': False, 'error': form.errors})
 
 
 def issues_detail(request, project_id, issue_id):
@@ -314,3 +317,33 @@ def issues_change(request, project_id, issue_id):
 
     return JsonResponse({'status': False, 'error': 'Invalid field name'})
 
+
+def invite_url(request, project_id):
+    """generate invite url"""
+    form = InviteModelForm(data=request.POST)
+    if form.is_valid():
+        """
+            1. 创建随机的邀请码
+            2. 邀请码保存到数据库
+            3. 限制，只有项目创建者才能生成邀请链接
+        """
+        if request.tracer.user != request.tracer.project.creator:
+            form.add_error('period', 'Only project creator can generate invite url')
+            return JsonResponse({'status': False, 'error': form.errors})
+        random_invite_code = uid(request.tracer.user.mobile_phone)
+        form.instance.code = random_invite_code
+        form.instance.project = request.tracer.project
+        form.instance.creator = request.tracer.user
+        form.save()
+
+        # 将邀请码url发送给前端
+        url_path = reverse('tracer:invite_join', kwargs={'code': random_invite_code})
+        url_invite = f"{request.scheme}://{request.get_host()}{url_path}"
+
+        return JsonResponse({'status': True, 'data': url_invite})
+    else:
+        return JsonResponse({'status': False, 'error': form.errors})
+
+
+def invite_join(request, code):
+    """访问邀请码链接"""

@@ -47,6 +47,7 @@ urlpatterns = [
             re_path('issues/detail/(?P<issue_id>\d+)/$',issues.issues_detail, name='issues_detail'),
             re_path('issues/record/(?P<issue_id>\d+)/$',issues.issues_record, name='issues_record'),
             re_path('issues/change/(?P<issue_id>\d+)/$',issues.issues_change, name='issues_change'),
-
+            re_path('issues/invite/url/$', issues.invite_url, name='invite_url'),
     ])),
+    re_path('invite/join/(?P<code>\w+)/$', issues.invite_join, name='invite_join'),
 ]

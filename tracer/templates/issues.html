@@ -49,7 +49,7 @@
             font-weight: 500;
             text-align: center;
         }
-        nav {
+        .row nav {
             margin-top: 1rem;
         }
         .filter_area .item {
@@ -392,6 +392,20 @@
                             {% endfor %}
                             <button type="button" class="btn btn-primary" id="btnGenInviteCode">Generate Invite Code</button>
                         </form>
+                        <div id="inviteArea" class="d-none">
+                            <hr/>
+                            <div class="form-group  my-4">
+                                <div class="input-group">
+
+                                    <span class="input-group-text">Invitation URL</span>
+
+                                    <input type="text" class="form-control" id="inviteUrl" readonly>
+                                     <div class="input-group-btn">
+                                        <input type="button" value="Copy Link" class="btn btn-outline-success" id="btnCopyUrl">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                 </div>
             </div>
         </div>
@@ -404,21 +418,25 @@
 <script src="{% static 'plugin/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 <script>
     var WIKI_UPLOAD_URL = "{% url 'tracer:wiki_upload' project_id=request.tracer.project.id %}";
     var POST_ISSUES = "{% url 'tracer:issues' project_id=request.tracer.project.id %}";
-
+    var INVITE_URL = "{% url 'tracer:invite_url' project_id=request.tracer.project.id %}"
     $( function () {
         bindBootStrapShownEvent();
         initDatePicker();
         bindAddSubmit();
         bindClickCheckFilter();
         initSelect2();
+        bindCreateInviteCode();
+        bindCopyUrl();
     });
-           /*
-        添加对话框：初始化时间选择
-         */
+
+    /*
+    添加对话框：初始化时间选择
+    */
     function initDatePicker() {
             $('#id_start_date,#id_end_date').datepicker({
                 format: 'yyyy-mm-dd',
@@ -484,6 +502,42 @@
         }).on('select2:unselect', function(e){
             // 移除某个值后，触发change事件
             location.href = e.params.data.id;
+        });
+    }
+
+    /*点击生成邀请码*/
+    function bindCreateInviteCode(){
+
+        $('#btnGenInviteCode').click(function(){
+            $.ajax({
+                url: INVITE_URL,
+                type: "POST",
+                data: $('#inviteForm').serialize(),
+                dataType: "JSON",
+                success: function(res){
+                    if(res.status){
+                        $('#inviteArea').removeClass('d-none').find('#inviteUrl').val(res.data);
+                    }else{
+                        $.each(res.error, function(key, value){
+                            $('#id_'+key).next('.error-msg').text(value[0]);
+                        })
+                    }
+                }
+            });
+        });
+    }
+
+    /*点击复制邀请码*/
+    function bindCopyUrl() {
+        $('#btnCopyUrl').click(function() {
+            const url = $('#inviteUrl')[0]; //加上[0]是为了把jquery 变成 dom对象
+            url.select();
+            document.execCommand("Copy");
+            swal({
+                  title: "Link copied to your clipboard!",
+                  icon: "success",
+                  button: "OK!",
+});
         });
     }
 </script>
