@@ -1,12 +1,17 @@
 import json
+import datetime
+
 from django.http import JsonResponse
 from django.shortcuts import render
-from tracer import models
+
+import tracer.models
 from tracer.forms.issues import *
+from tracer import models
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from utils.encrypt import uid
 from django.urls import reverse
+
 
 class CheckSelectFilter:
     def __init__(self, request, name, data_list, filter_type):
@@ -330,7 +335,7 @@ def invite_url(request, project_id):
         if request.tracer.user != request.tracer.project.creator:
             form.add_error('period', 'Only project creator can generate invite url')
             return JsonResponse({'status': False, 'error': form.errors})
-        random_invite_code = uid(request.tracer.user.mobile_phone)
+        random_invite_code = uid(request.tracer.user.email)
         form.instance.code = random_invite_code
         form.instance.project = request.tracer.project
         form.instance.creator = request.tracer.user
@@ -347,3 +352,43 @@ def invite_url(request, project_id):
 
 def invite_join(request, code):
     """访问邀请码链接"""
+    invite_object = models.ProjectInvite.objects.filter(code=code).first()
+    if not invite_object:
+        return render(request, 'invite_join.html', {'error': 'Invalid invite code'})
+
+    if invite_object.creator == request.tracer.user:
+        return render(request, 'invite_join.html',
+                      {'error': 'You are the creator of this project, you can not join it'})
+
+    exists = models.ProjectUser.objects.filter(project=invite_object.project, user=request.tracer.user).exists()
+    if exists:
+        return render(request, 'invite_join.html', {'error': 'You have joined this project'})
+
+    # 项目最多允许加入的人数
+    project_max_user_count = request.tracer.pricy_policy.project_member
+    # 当前项目的成员数
+    current_project_user_count = models.ProjectUser.objects.filter(project=invite_object.project).count()
+    # 加上项目的创建者
+    current_project_user_count += 1
+
+    if current_project_user_count >= project_max_user_count:
+        return render(request, 'invite_join.html', {'error': 'Project member is full, please upgrade your plan'})
+
+    # 邀请码有效期
+    current_datetime = datetime.datetime.now()
+    invite_code_expire_date = invite_object.create_datetime + datetime.timedelta(minutes=invite_object.period)
+
+    if current_datetime > invite_code_expire_date:
+        return render(request, 'invite_join.html', {'error': 'Invite code is expired'})
+
+    # 将邀请码设置为已使用
+    if invite_object.count:
+        if invite_object.use_count >= invite_object.count:
+            return render(request, 'invite_join.html', {'error': 'Invite code is used up'})
+        else:
+            invite_object.use_count += 1
+            invite_object.save()
+
+    # 如果邀请码没有使用次数限制，将当前用户设为项目成员
+    models.ProjectUser.objects.create(project=invite_object.project, user=request.tracer.user)
+    return render(request, 'invite_join.html', {'project_id': invite_object.project_id})

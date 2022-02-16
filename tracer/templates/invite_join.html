@@ -1,0 +1,30 @@
+{% extends 'layout/manage.html' %}
+
+{% block title %}
+    Invite joining project
+{% endblock %}
+
+{% block css %}
+    <style>
+        .no-radius {
+            border-radius: 0;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div>
+        {% if error %}
+            <div class="alert alert-danger no-radius">
+                <h4><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> {{ error }}</h4>
+            </div>
+        {% else %}
+            <div class="alert alert-success no-radius">
+                <h4><i class="fas fa-check-circle" aria-hidden="true"></i> Joined Project Successfully! </h4>
+                <a href="{% url 'tracer:dashboard' project_id=project_id %}">Click to project page</a>
+            </div>
+
+        {% endif %}
+    </div>
+{% endblock %}
