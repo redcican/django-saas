@@ -23,6 +23,8 @@ urlpatterns = [
     # project manage
     re_path('manage/(?P<project_id>\d+)/', include([
         re_path('dashboard/$', dashboard.dashboard, name='dashboard'),
+        re_path('dashboard/issues/chart/$', dashboard.issues_chart, name='issues_chart'),
+
         re_path('statistics/$', manage.statistics, name='statistics'),
 
         re_path('wiki/$', wiki.wiki, name='wiki'),

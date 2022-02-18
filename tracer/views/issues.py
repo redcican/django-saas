@@ -405,4 +405,8 @@ def invite_join(request, code):
 
     # 如果邀请码没有使用次数限制，将当前用户设为项目成员
     models.ProjectUser.objects.create(project=invite_object.project, user=request.tracer.user)
+
+    # 当前项目的join_count + 1
+    invite_object.project.join_count += 1
+    invite_object.project.save()
     return render(request, 'invite_join.html', {'project_id': invite_object.project_id})
