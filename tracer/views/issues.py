@@ -353,6 +353,8 @@ def invite_url(request, project_id):
 def invite_join(request, code):
     """访问邀请码链接"""
     invite_object = models.ProjectInvite.objects.filter(code=code).first()
+    current_datetime = datetime.datetime.now()
+
     if not invite_object:
         return render(request, 'invite_join.html', {'error': 'Invalid invite code'})
 
@@ -365,17 +367,29 @@ def invite_join(request, code):
         return render(request, 'invite_join.html', {'error': 'You have joined this project'})
 
     # 项目最多允许加入的人数
-    project_max_user_count = request.tracer.pricy_policy.project_member
+    # project_max_user_count = request.tracer.pricy_policy.project_member
+
+    # 是否已经过期， 如果已经过期，则使用免费额度
+    max_transaction = models.Transaction.objects.filter(user=invite_object.project.creator).order_by('-id').first()
+    if max_transaction.price_policy.category == 1:
+        max_member = max_transaction.price_policy.project_member
+    else:
+        if max_transaction.end_datetime < current_datetime:
+            free_object = models.PricePolicy.objects.filter(category=1).first()
+            max_member = free_object.project_member
+        else:
+            max_member = max_transaction.price_policy.project_number
+
     # 当前项目的成员数
     current_project_user_count = models.ProjectUser.objects.filter(project=invite_object.project).count()
     # 加上项目的创建者
     current_project_user_count += 1
 
-    if current_project_user_count >= project_max_user_count:
+    if current_project_user_count >= max_member:
         return render(request, 'invite_join.html', {'error': 'Project member is full, please upgrade your plan'})
 
     # 邀请码有效期
-    current_datetime = datetime.datetime.now()
+
     invite_code_expire_date = invite_object.create_datetime + datetime.timedelta(minutes=invite_object.period)
 
     if current_datetime > invite_code_expire_date:
