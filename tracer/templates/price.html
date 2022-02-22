@@ -6,13 +6,15 @@
 {% block css %}
     <style>
         .slogan{
-            font-size: 3em;
+            font-size: 3rem;
             text-align: center;
             margin: 100px 0;
         }
         .card .card-header{
-            font-size: 1.5em;
-            background-color: #4692b9;
+            font-size: 1.5rem;
+        }
+        .card .list-group-item{
+            font-size: 1.2rem;
         }
 
     </style>
@@ -25,13 +27,13 @@
             {% for item in price_list %}
             <div class="col-md-4">
                 <div class="card text-center">
-                    <div class="card-header">{{ item.title }}</div>
+                    <div class="card-header bg-transparent">{{ item.title }}</div>
                     <div class="card-body">
                         <h5 class="card-title">$ {{ item.price }} / Year </h5>
                     </div>
                     <ul class="list-group">
                         <li class="list-group-item d-flex justify-content-between">
-                            <form class="form-inline" method="get" action="#">
+                            <form class="form-inline" method="get" action="{% url 'tracer:payment' policy_id=item.id %}">
                                 <div class="form-group">
                                     <div class="input-group">
                                         <span class="input-group-text">Number</span>

@@ -16,6 +16,7 @@ urlpatterns = [
     path('index/', home.index, name='index'),
 
     path('price/', home.price, name='price'),
+    re_path('payment/(?P<policy_id>\d+)/$', home.payment, name='payment'),
 
     # project list
     path('project/list/', project.project_list, name='project_list'),

@@ -1,0 +1,52 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+
+{% block title %} Order {% endblock %}
+
+{% block css %}
+    <style>
+        h2{
+            margin-top: 2rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Payment Information</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Unit price</th>
+                    <th>Number</th>
+                    <th>Original price</th>
+                    <th>Discount</th>
+                    <th>To pay</th>
+
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{ policy_object.title }}</td>
+                <td>{{ policy_object.price }}</td>
+                <td>{{ number }}</td>
+                <td>${{ original_price }}</td>
+                <td>${{ balance }}</td>
+                <td>${{ total_price }}</td>
+            </tr>
+            </tbody>
+        </table>
+        {% if request.tracer.price_policy.category == 2 %}
+            <div class="alert alert-warning">
+                <div>Paid order discount: ${{ balance }}</div>
+                <div>
+                    Paid order time: {{ transaction_object.start_datetime}}
+                    ~ {{ transaction_object.end_datetime }}, and you paid: ${{ transaction_object.price }}
+                </div>
+            </div>
+
+        {% endif %}
+        <a class="btn btn-primary" href="#">Pay Now</a>
+    </div>
+{% endblock %}
