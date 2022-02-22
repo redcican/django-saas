@@ -1,7 +1,11 @@
 import datetime
+import json
+
+from django_redis import get_redis_connection
 
 from django.shortcuts import render, redirect
 from tracer import models
+from utils.encrypt import uid
 
 
 def index(request):
@@ -37,7 +41,8 @@ def payment(request, policy_id):
     transaction_object = None
     if request.tracer.price_policy.category == 2:
         # 4.1 如果之前已经是付费套餐, 找到之间的订单， 总费用，开始和结束时间，还有剩余的天数
-        transaction_object = models.Transaction.objects.filter(user=request.tracer.user, status=2).order_by('-id').first()
+        transaction_object = models.Transaction.objects.filter(user=request.tracer.user, status=2).order_by(
+            '-id').first()
         total_timedelta = transaction_object.end_datetime - transaction_object.start_datetime
         balance_timedelta = transaction_object.end_datetime - datetime.datetime.now()
 
@@ -57,8 +62,38 @@ def payment(request, policy_id):
         'total_price': original_price - round(balance, 2),
     }
 
+    conn = get_redis_connection()
+    key = f'payment_{request.tracer.user.mobile_phone}'
+    conn.set(key, json.dumps(context), ex=60 * 30)
+
     context['policy_object'] = policy_object
     context['transaction'] = transaction_object
 
     return render(request, 'payment.html', context)
 
+
+def pay(request):
+    """pay page for ali pay"""
+    conn = get_redis_connection()
+    key = f'payment_{request.tracer.user.mobile_phone}'
+
+    context_string = conn.get(key)
+    if not context_string:
+        return redirect('tracer:price')
+
+    context = json.loads(context_string.decode('utf-8'))
+
+    # 1. 数据库中生成交易记录(待支付), 支付成功后更新交易记录(已支付，开始和结束时间)
+    order_id = uid(request.tracer.user.mobile_phone)
+    models.Transaction.objects.create(
+        status=1,
+        order=order_id,
+        user=request.tracer.user,
+        price_policy_id=context['policy_id'],
+        count=context['number'],
+        price=context['total_price'],
+    )
+    # 2. 跳转支付宝支付页面
+    # 2.1 生成支付宝支付链接
+    # 2.2 跳转到支付宝支付页面
+    return None

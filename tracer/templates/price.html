@@ -16,7 +16,15 @@
         .card .list-group-item{
             font-size: 1.2rem;
         }
+        .card {
+            transition: all 0.3s ease;
+            cursor: pointer
+        }
 
+        .card:hover {
+            box-shadow: 5px 6px 6px 2px #e9ecef;
+            transform: scale(1.1)
+        }
     </style>
 {% endblock css %}
 
@@ -27,7 +35,18 @@
             {% for item in price_list %}
             <div class="col-md-4">
                 <div class="card text-center">
-                    <div class="card-header bg-transparent">{{ item.title }}</div>
+                <div>
+                    {% if item.title == 'VIP' %}
+                        <img class="card-img-top" src="{% static 'img/vip.png' %}" alt={{ item.title }} >
+                    {% elif item.title == 'SVIP' %}
+                        <img class="card-img-top" src="{% static 'img/svip.png' %}" alt={{ item.title }} >
+                    {% else %}
+                        <img class="card-img-top" src="{% static 'img/ssvip.png' %}" alt={{ item.title }}>
+                    {% endif %}
+                    <div class="card-header bg-transparent ">
+                        {{ item.title }}
+                    </div>
+                </div>
                     <div class="card-body">
                         <h5 class="card-title">$ {{ item.price }} / Year </h5>
                     </div>

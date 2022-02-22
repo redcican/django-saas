@@ -8,12 +8,16 @@
         h2{
             margin-top: 2rem;
         }
+        p{
+            color: #d63384;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
     <div class="container">
         <h2>Payment Information</h2>
+
         <table class="table">
             <thead>
                 <tr>
@@ -48,5 +52,6 @@
 
         {% endif %}
         <a class="btn btn-primary" href="#">Pay Now</a>
+        <p>Order payment valid in 30 Mintes</p>
     </div>
 {% endblock %}
