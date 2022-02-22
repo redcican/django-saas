@@ -1,0 +1,58 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+
+{% block title %} Product Price {% endblock title %}
+
+{% block css %}
+    <style>
+        .slogan{
+            font-size: 3em;
+            text-align: center;
+            margin: 100px 0;
+        }
+        .card .card-header{
+            font-size: 1.5em;
+            background-color: #4692b9;
+        }
+
+    </style>
+{% endblock css %}
+
+{% block content %}
+  <div class="container">
+        <div class="slogan">A variety of solutions, using a variety of scenarios</div>
+        <div class="row">
+            {% for item in price_list %}
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-header">{{ item.title }}</div>
+                    <div class="card-body">
+                        <h5 class="card-title">$ {{ item.price }} / Year </h5>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <form class="form-inline" method="get" action="#">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <span class="input-group-text">Number</span>
+                                        <input type="number" name="number" value="1" class="form-control" placeholder="Purchase amount">
+                                        <div class="input-group-btn">
+                                            <input type="submit" value="Buy now" class="btn btn-primary">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">Max Project Number: {{ item.project_num }}</li>
+                        <li class="list-group-item d-flex justify-content-between">Max Project Space: {{ item.project_space }}G</li>
+                        <li class="list-group-item d-flex justify-content-between">Max File Size: {{ item.per_file_size }}M</li>
+                        <li class="list-group-item d-flex justify-content-between">Max Project Member: {{ item.project_member }}</li>
+
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock content %}

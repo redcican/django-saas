@@ -184,6 +184,8 @@
 {% endblock content %}
 {% block js %}
     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
     <script>
 
         const INIT_CHART = "{% url 'tracer:issues_chart' project_id=request.tracer.project.id %}";
@@ -199,8 +201,19 @@
         function initChart(){
            const config =  {
                title: {
-                text: null
-            },
+                text: null},
+                exporting: {
+                    chartOptions: { // specific options for the exported image
+                      plotOptions: {
+                        series: {
+                          dataLabels: {
+                            enabled: true
+                          }
+                        }
+                      }
+                    },
+                    fallbackToExportServer: false
+                  },
             yAxis: {
                 title: {
                     text: 'Number of Issues'
@@ -222,10 +235,10 @@
                },
 
             legend: {
-                // layout: 'vertical',
-                // align: 'right',
-                // verticalAlign: 'middle'
-                enabled: false
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+                // enabled: false
             },
                credits: {
                 enabled: false
@@ -244,6 +257,7 @@
             },
 
             series: [{
+                   name: "issue count",
                    data: []
             } ],
 

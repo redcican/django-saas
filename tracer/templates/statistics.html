@@ -1,6 +1,233 @@
 {% extends 'layout/manage.html' %}
+{% block css %}
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<style>
+    .container-fluid .head{
+        margin-top: 2rem;
+    }
+     .container-fluid .head .form-group{
+        width: 20rem;
+    }
+     .card .priority {
+         min-height: 300px;
+     }
+    .card .projectUser {
+         min-height: 300px;
+     }
+</style>
+{% endblock css %}
 
 
 {% block content %}
-    <h1>Overview</h1>
+    <div class="container-fluid">
+        <div class="head">
+        <div class="form-group  mt-3">
+            <div class="input-group mb-1">
+                <span class="input-group-text">Date Range</span>
+                <input id="rangePicker" type="text" class="form-control" >
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-chart-column"></i> New Problem Trend
+                    </div>
+                    <div class="card-body projectUser">
+                        <div id="projectUserChart">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+
+                           <i class="fa-solid fa-chart-pie"></i>  Priority Summary
+                        </div>
+                        <div class="card-body priority">
+                            <div id="priorityChart"></div>
+                        </div>
+                    </div>
+
+            </div>
+        </div>
+        </div>
+    </div>
 {% endblock content %}
+
+{% block js %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+
+    <script>
+        const STATISTIC_PRIORITY_URL = "{% url 'tracer:statistics_priority' project_id=request.tracer.project.id %}"
+        const STATISTIC_PROJECT_USER_URL = "{% url 'tracer:statistics_project_user' project_id=request.tracer.project.id %}"
+
+        const start = moment().subtract(6, 'days');
+        const end = moment();
+
+        Highcharts.setOptions({
+            colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00',
+                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4']
+        });
+
+        $(function (){
+           initDateRangePicker();
+           priorityPlot(start.format('YYYY-MM-DD'),end.format('YYYY-MM-DD'));
+           projectUserPlot(start.format('YYYY-MM-DD'),end.format('YYYY-MM-DD'));
+
+        });
+
+        function initDateRangePicker(){
+
+            const options = {
+                // maxDate: moment(),
+                startDate: start,
+                endDate: end,
+                alwaysShowCalendars: true,
+                showWeekNumbers: true,
+                ranges:{
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days':[moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days':[moment().subtract(29, 'days'), moment()],
+                    'This Month':[moment().startOf('month'), moment().endOf('month')],
+                }
+            };
+            $('#rangePicker').daterangepicker(options, function (start,end,label){
+                priorityPlot(start.format('YYYY-MM-DD'),end.format('YYYY-MM-DD'));
+                projectUserPlot(start.format('YYYY-MM-DD'),end.format('YYYY-MM-DD'));
+
+            });
+        }
+
+        function priorityPlot(start, end){
+            const config = {
+                 chart: {
+                    type: 'pie'
+                },
+                exporting: {
+                    chartOptions: { // specific options for the exported image
+                      plotOptions: {
+                        series: {
+                          dataLabels: {
+                            enabled: true
+                          }
+                        }
+                      }
+                    },
+                    fallbackToExportServer: false
+                  },
+                 credits: {
+                enabled: false
+                           },
+                title: {
+                    text: null
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.y}</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: false
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    name: 'Priority',
+                    colorByPoint: true,
+                    data: []
+                }]};
+            $.ajax({
+                url: STATISTIC_PRIORITY_URL,
+                type: 'GET',
+                data: {
+                    start: start,
+                    end: end
+                },
+                success: function(res){
+                    config.series[0].data = res.data;
+                    Highcharts.chart('priorityChart', config);
+                }
+            });
+        }
+
+        function projectUserPlot(start, end){
+            const config = {
+                chart: {
+                        type: 'column'
+                    },
+                credits: {
+                enabled: false
+                           },
+                title: {
+                    text: null
+                },
+                xAxis: {
+                    categories: []
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Total issues count'
+                    },
+                    stackLabels: {
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: ( // theme
+                    Highcharts.defaultOptions.title.style &&
+                    Highcharts.defaultOptions.title.style.color
+                ) || 'gray'
+                        }
+                    }
+                },
+                legend: {
+                    align: 'center',
+                    verticalAlign: 'top'
+                },
+                tooltip: {
+                     formatter: function () {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y + '<br/>' +
+                            'Total count: ' + this.point.stackTotal;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: false
+                        }
+                    }
+                },
+                series: []
+            };
+            $.ajax({
+                url: STATISTIC_PROJECT_USER_URL,
+                type: 'GET',
+                data: {
+                    start: start,
+                    end: end
+                },
+                success: function(res){
+                    config.xAxis.categories = res.data.categories;
+                    config.series = res.data.series;
+
+                    Highcharts.chart('projectUserChart', config);
+                }
+            });
+        }
+    </script>
+{% endblock js %}

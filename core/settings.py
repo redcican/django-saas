@@ -175,6 +175,7 @@ WHITE_REGEX_URL_LIST = [
     "/image/code/",
     "/send/sms/",
     "/index/",
+    "/price/"
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
