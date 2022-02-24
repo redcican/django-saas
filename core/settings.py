@@ -30,7 +30,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -92,7 +91,6 @@ CACHES = {
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 postgres_database_name = os.getenv('POSTGRES_DATABASE_NAME')
@@ -112,7 +110,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -131,7 +128,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -145,7 +141,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = False
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -166,6 +161,16 @@ TENCENT_COS_SECRET_ID = os.getenv('TENCENT_COS_SECRET_ID')
 TENCENT_COS_SECRET_KEY = os.getenv('TENCENT_COS_SECRET_KEY')
 # TENCENT_COS_REGION = os.getenv('TENCENT_COS_REGION')
 # TENCENT_COS_BUCKET = os.getenv('TENCENT_COS_BUCKET')
+
+# ALI PAY SANDBOX
+ALIPAY_APPID = "2021000119623291"
+
+ALIPAY_GATEWAY = "https://openapi.alipaydev.com/gateway.do"
+ALIPAY_PRIVATE_KEY_PATH = BASE_DIR / 'files' / 'privatekey2048.txt'
+ALIPAY_PUBLIC_KEY_PATH = BASE_DIR / 'files' / 'alipay_key.txt'
+ALIPAY_NOTIFY_URL = 'http://127.0.0.1:8000/pay/notify/'  # POST
+ALIPAY_RETURN_URL = 'http://127.0.0.1:8000/pay/notify/'  # GET
+
 
 # white list: can be accessed without login
 WHITE_REGEX_URL_LIST = [
