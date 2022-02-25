@@ -1,9 +1,12 @@
 
+from hashlib import new
 from django.shortcuts import redirect, render
 from tracer import models
+from tracer.forms.account import ChangePasswordForm
 
 from utils.tencent_cos import delete_bucket
-
+from django.contrib.auth.forms import PasswordChangeForm
+from utils.encrypt import md5
 
 def setting(request, project_id):
     return render(request, 'setting.html')
@@ -36,3 +39,21 @@ def setting_delete(request, project_id):
     models.Project.objects.filter(id=request.tracer.project.id).delete()
     
     return redirect('tracer:project_list')
+
+
+def change_password(request, project_id):
+    """Change password"""
+    if request.method == 'GET':
+        form = ChangePasswordForm(request)
+        return render(request, 'change_password.html', {'form': form})
+    
+    else:
+        form = ChangePasswordForm(request, data=request.POST)
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            
+            request.tracer.user.password = md5(new_password)
+            request.tracer.user.save()
+            return redirect('tracer:login')
+        else:
+            return render(request, 'change_password.html', {'form': form})

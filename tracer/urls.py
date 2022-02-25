@@ -13,7 +13,9 @@ urlpatterns = [
     path('logout/', account.logout, name='logout'),
     path('image/code/', account.image_code, name='image_code'),
     path('send/sms/', account.send_sms, name='send_sms'),
+    path('', home.index, name='index'),
     path('index/', home.index, name='index'),
+
 
     path('price/', home.price, name='price'),
     re_path('payment/(?P<policy_id>\d+)/$', home.payment, name='payment'),
@@ -50,6 +52,8 @@ urlpatterns = [
 
         re_path('setting/$', setting.setting, name='setting'),
         re_path('setting/delete/$', setting.setting_delete, name='setting_delete'),
+        re_path('setting/change/password/$', setting.change_password, name='change_password'),
+
 
         re_path('issues/$', issues.issues, name='issues'),
         re_path('issues/detail/(?P<issue_id>\d+)/$', issues.issues_detail, name='issues_detail'),

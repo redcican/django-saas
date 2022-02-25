@@ -203,3 +203,42 @@ class LoginForm(BootstrapForm, forms.Form):
     def clean_password(self):
         password = self.cleaned_data['password']
         return encrypt.md5(password)
+
+class ChangePasswordForm(BootstrapForm, forms.Form):
+    old_password = forms.CharField(label='old password', widget=forms.PasswordInput())
+    new_password = forms.CharField(label='new password', 
+                                       min_length=8,
+                                       max_length=16,
+                                       error_messages={
+                                           'min_length': 'Repeated password must be at least 8 characters long.',
+                                           'max_length': 'Repeated password cannot be longer than 16 characters.'
+                                       },
+                                       widget=forms.PasswordInput(
+                                       ))
+    confirm_password = forms.CharField(label='confirm password', 
+                                       min_length=8,
+                                       max_length=16,
+                                       error_messages={
+                                           'min_length': 'Repeated password must be at least 8 characters long.',
+                                           'max_length': 'Repeated password cannot be longer than 16 characters.'
+                                       },
+                                       widget=forms.PasswordInput())
+    
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+        
+    def clean_old_password(self):
+        old_password = self.cleaned_data['old_password']
+        if encrypt.md5(old_password) != self.request.tracer.user.password:
+            raise ValidationError('Old password is wrong')
+        
+        return old_password
+    
+    def clean_confirm_password(self):
+        new_password = self.cleaned_data['new_password']
+        confirm_password = self.cleaned_data['confirm_password']
+        if new_password != confirm_password:
+            raise ValidationError('New password and confirm password are not the same')
+        
+        return confirm_password

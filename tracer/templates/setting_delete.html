@@ -31,7 +31,7 @@
                 
                     <div class="list-group" style="border-radius:0">
                         <a class="list-group-item list-group-item-action" href="#">My Profile</a>
-                        <a class="list-group-item list-group-item-action" href="#">Change Password</a>
+                        <a class="list-group-item list-group-item-action" href="{% url 'tracer:change_password' project_id=request.tracer.project.id %}">Change Password</a>
                         <a class="list-group-item list-group-item-action choose" href="{% url 'tracer:setting_delete' project_id=request.tracer.project.id %}">Delete Project</a>
                     </div>
                  
