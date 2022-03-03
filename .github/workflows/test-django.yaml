@@ -15,11 +15,11 @@ jobs:
       run:
         working-directory: .
     env:
-      POSTGRES_DB=djangosaas
-      POSTGRES_USER_NAME=postgres
-      POSTGRES_PASSWORD=1228
-      POSTGRES_HOST=localhost
-      POSTGRES_PORT=5432
+      POSTGRES_DB: djangosaas
+      POSTGRES_USER_NAME: postgres
+      POSTGRES_PASSWORD: 1228
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
     services:
       postgres_main:
         image: postgres:14
