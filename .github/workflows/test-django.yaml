@@ -20,6 +20,12 @@ jobs:
       POSTGRES_PASSWORD: 1228
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
+      TENCENT_COS_SECRET_ID: ${{ secrets.TENCENT_COS_SECRET_ID }}
+      TENCENT_COS_SECRET_KEY: ${{ secrets.TENCENT_COS_SECRET_KEY }}
+      TENCENT_COS_REGION: ${{ secrets.TENCENT_COS_REGION }}
     services:
       postgres_main:
         image: postgres:14
