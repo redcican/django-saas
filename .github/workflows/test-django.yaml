@@ -14,10 +14,30 @@ jobs:
     defaults:
       run:
         working-directory: .
+    env:
+      POSTGRES_DB=djangosaas
+      POSTGRES_USER_NAME=postgres
+      POSTGRES_PASSWORD=1228
+      POSTGRES_HOST=localhost
+      POSTGRES_PORT=5432
+    services:
+      postgres_main:
+        image: postgres:14
+        env:
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER_NAME: ${{ env.POSTGRES_USER_NAME }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s 
+          --health-timeout 10s
+          --health-retries 5
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v2
