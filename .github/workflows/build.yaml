@@ -1,0 +1,25 @@
+name: Build Docker container and push to DigitalOcean Container Registry
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-django:
+    uses: redcican/django-saas/.github/workflows/test-django.yaml@main
+  docker-build:
+    runs-on: ubuntu-latest
+    env:
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
+      TENCENT_COS_SECRET_ID: ${{ secrets.TENCENT_COS_SECRET_ID }}
+      TENCENT_COS_SECRET_KEY: ${{ secrets.TENCENT_COS_SECRET_KEY }}
+      TENCENT_COS_REGION: ${{ secrets.TENCENT_COS_REGION }}
+
+    steps:
+    - uses: actions/checkout@v2
