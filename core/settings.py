@@ -11,27 +11,23 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-from dotenv import load_dotenv
-
-
 
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-x@r^w#sozd_cj=78i=dfnx=)up$b&r19vq)=50_8rvl^wh4g5r'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY','django-insecure-x@r^w#sozd_cj=78i=dfnx=)up$b&r19vq)=50_8rvl^wh4g5r')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = str(os.getenv('DEBUG')) == '1'
+DEBUG = str(os.environ.get('DEBUG')) == '1'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -41,12 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    "whitenoise.runserver_nostatic",
     'django.contrib.staticfiles',
     'tracer',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -74,13 +72,13 @@ TEMPLATES = [
     },
 ]
 
-redis_host = os.getenv('REDIS_HOST_IP')
-redis_ip = os.getenv('REDIS_HOST_PORT')
-redis_password = os.getenv('REDIS_PASSWORD')
+redis_host = os.environ.get('REDIS_HOST')
+redis_port = os.environ.get('REDIS_HOST_PORT')
+redis_password = os.environ.get('REDIS_PASSWORD')
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis:://{redis_host}:{redis_ip}",  # 安装redis的主机的 IP 和 端口
+        "LOCATION": f"redis:://{redis_host}:{redis_port}/0",  # 安装redis的主机的 IP 和 端口
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {
@@ -96,15 +94,18 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-postgres_database_name = os.getenv('POSTGRES_DATABASE_NAME')
-postgres_user_name = os.getenv('POSTGRES_USER_NAME')
-postgres_password = os.getenv('POSTGRES_PASSWORD')
-postgres_host = os.getenv('POSTGRES_HOST')
-postgres_port = os.getenv('POSTGRES_PORT')
+postgres_database_name = os.environ.get('POSTGRES_DB')
+postgres_user_name = os.environ.get('POSTGRES_USER_NAME')
+postgres_password = os.environ.get('POSTGRES_PASSWORD')
+postgres_host = os.environ.get('POSTGRES_HOST')
+postgres_port = os.environ.get('POSTGRES_PORT')
+
+DB_IGNORE_SSL=os.environ.get('DB_IGNORE_SSL') == 'true'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        # 'ENGINE': 'django.db.backends.postgresql_psycopg2', (local)
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': postgres_database_name,
         'USER': postgres_user_name,
         'PASSWORD': postgres_password,
@@ -112,6 +113,11 @@ DATABASES = {
         'PORT': postgres_port
     }
 }
+
+if not DB_IGNORE_SSL:
+    DATABASES['default']['OPTIONS'] = {
+        'sslmode': 'require'
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -148,20 +154,20 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = '/static/'
-
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Twilio credentials
-TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
-TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER')
 
 # TENCENT credentials
-TENCENT_COS_SECRET_ID = os.getenv('TENCENT_COS_SECRET_ID')
-TENCENT_COS_SECRET_KEY = os.getenv('TENCENT_COS_SECRET_KEY')
+TENCENT_COS_SECRET_ID = os.environ.get('TENCENT_COS_SECRET_ID')
+TENCENT_COS_SECRET_KEY = os.environ.get('TENCENT_COS_SECRET_KEY')
 # TENCENT_COS_REGION = os.getenv('TENCENT_COS_REGION')
 # TENCENT_COS_BUCKET = os.getenv('TENCENT_COS_BUCKET')
 
@@ -183,7 +189,8 @@ WHITE_REGEX_URL_LIST = [
     "/image/code/",
     "/send/sms/",
     "/index/",
-    "/price/"
+    "/price/",
+    "/admin/",
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'

@@ -15,9 +15,19 @@ def register(request):
     form = RegisterForm(data=request.POST)
     if form.is_valid():
         instance = form.save()
+        """
         policy_object = models.PricePolicy.objects.filter(
             category=1, title='Personal Free').first()
-        
+        """
+        policy_object=models.PricePolicy.objects.create(
+            category=1,
+            title="Personal Free",
+            price=0,
+            project_num=3,
+            project_member=2,
+            project_space=20,
+            per_file_size=5
+        )
         # 创建默认交易记录，当创建用户时自动创建
         models.Transaction.objects.create(
             status=2,

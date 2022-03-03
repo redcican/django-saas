@@ -5,7 +5,7 @@
 __pycache__
 *.sqlite3
 media
-
+.kube/
 core/local_settings.py
 # Backup files # 
 *.bak 
@@ -80,7 +80,8 @@ celerybeat-schedule.*
 # SageMath parsed files 
 *.sage.py 
 
-# Environments 
+# Environments
+.env.prod
 .env 
 .venv 
 env/ 

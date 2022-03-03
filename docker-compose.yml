@@ -1,0 +1,54 @@
+version: "3.9"
+services:
+  web:
+    depends_on:
+      - postgres_db
+      - redis
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tracer-web:v1
+    environment:
+      - PORT=8020
+      - REDIS_HOST=redis
+    env_file:
+      - .env
+    ports:
+      - "8001:8020"
+    command: sh -c "chmod +x /app/migrate.sh && sh /app/migrate.sh && /app/entrypoint.sh"
+    volumes:
+      - staticfiles:/app/staticfiles/
+    container_name: tracer-web
+
+  postgres_db:
+    image: postgres:14.1-alpine
+    restart: always
+    command: -p 5432
+    environment:
+      - POSTGRES_PASSWORD=1228
+    env_file:
+      - .env
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    container_name: postgres_db
+
+  redis:
+    image: redis:alpine
+    restart: always
+    expose:
+      - 6380
+    ports:
+      - "6380:6380"
+    volumes:
+      - redis_data:/data
+    entrypoint: redis-server --appendonly yes --port 6380
+    container_name: redis
+
+volumes:
+  staticfiles:
+  postgres_data:
+  redis_data:
