@@ -10,9 +10,88 @@ on:
 
 jobs:
   test-django-job:
-    uses: redcican/django-saas/.github/workflows/test-django.yaml@main
-  docker-build:
     runs-on: ubuntu-latest
-    needs: [test-django-job]
+    defaults:
+      run:
+        working-directory: .
+    env:
+      POSTGRES_DB: djangosaas
+      POSTGRES_USER_NAME: postgres
+      POSTGRES_PASSWORD: 1228
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      REDIS_HOST: 127.0.0.1
+      REDIS_HOST_PORT: 6379
+      REDIS_PASSWORD: 1228
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
+      TENCENT_COS_SECRET_ID: ${{ secrets.TENCENT_COS_SECRET_ID }}
+      TENCENT_COS_SECRET_KEY: ${{ secrets.TENCENT_COS_SECRET_KEY }}
+      TENCENT_COS_REGION: ${{ secrets.TENCENT_COS_REGION }}
+
+    services:
+      postgres_main:
+        image: postgres:14
+        env:
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          POSTGRES_USER_NAME: ${{ env.POSTGRES_USER_NAME }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s 
+          --health-timeout 10s
+          --health-retries 5
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [ 3.8 ]
+
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Tests
+        run: |
+          python manage.py test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test-django-job
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN  }}
+    - name: Login to DO Container Registry with short-lived creds
+      run: doctl registry login --expiry-seconds 1200
+    - name: Build container image
+      working-directory: .
+      run: |
+        docker build -f Dockerfile \
+            -t registry.digitalocean.com/django-tracer/django-tracer:latest \
+            -t registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7} \
+            .
+    - name: Push container image to DO Container Registry
+      run: |
+        docker push registry.digitalocean.com/django-tracer/django-tracer --all-tags
+        
