@@ -29,6 +29,7 @@ jobs:
       TENCENT_COS_SECRET_ID: ${{ secrets.TENCENT_COS_SECRET_ID }}
       TENCENT_COS_SECRET_KEY: ${{ secrets.TENCENT_COS_SECRET_KEY }}
       TENCENT_COS_REGION: ${{ secrets.TENCENT_COS_REGION }}
+      DIGITALOCEAN_CLUSTER_NAME: django-k8s
 
     services:
       postgres_main:
@@ -94,4 +95,18 @@ jobs:
     - name: Push container image to DO Container Registry
       run: |
         docker push registry.digitalocean.com/django-tracer/django-tracer --all-tags
+    - name: k8s cluster kubeconfig file short-lived crds
+      run: |
+        doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ env.DIGITALOCEAN_CLUSTER_NAME }}
+    - name: Update Deployment image
+      run: | 
+        kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}
+    - name: Wait for rollout to finish
+      run: |
+        kubectl rollout status deployment/django-k8s-web-deployment
+    - name: Migrate Database Command
+      run: |
+        export SINGLE_RUNNING_POD=$(kubectl get pods --selector app=django-k8s-web-deployment -o jsonpath='{.items[0].metadata.name}')
+        kubectl exec -it $SINGLE_RUNNING_POD -- bash /app/migrate.sh
+      
         
