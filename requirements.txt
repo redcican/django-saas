@@ -13,3 +13,4 @@ requests~=2.27.1
 gunicorn
 django-dotenv
 whitenoise
+django-storages

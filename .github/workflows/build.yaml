@@ -90,7 +90,7 @@ jobs:
       run: |
         docker build -f Dockerfile \
             -t registry.digitalocean.com/django-tracer/django-tracer:latest \
-            -t registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7} \
+            -t registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}-${GITHUB-RUN-ID::5} \
             .
     - name: Push container image to DO Container Registry
       run: |
@@ -100,7 +100,7 @@ jobs:
         doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.DIGITALOCEAN_CLUSTER_NAME }}
     - name: Update deployment secrets
       run: |
-          cat << EOF >> .env.prod
+          cat << EOF >> /.env.prod
           DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}
           DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
           DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }}
@@ -121,12 +121,12 @@ jobs:
           TENCENT_COS_SECRET_KEY: ${{ secrets.TENCENT_COS_SECRET_KEY }}
           TENCENT_COS_REGION: ${{ secrets.TENCENT_COS_REGION }}
           EOF
-          kubectl delete django-k8s-web-prod-env
+          kubectl delete secret django-k8s-web-prod-env
           kubectl create secret generic django-k8s-web-prod-env --from-env-file=.env.prod
 
     - name: Update Deployment image
       run: | 
-        kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}
+        kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}-${GITHUB-RUN-ID::5}
     - name: Wait for rollout to finish
       run: |
         kubectl rollout status deployment/django-k8s-web-deployment
