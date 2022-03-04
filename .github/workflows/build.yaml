@@ -98,6 +98,32 @@ jobs:
     - name: k8s cluster kubeconfig file short-lived creds
       run: |
         doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.DIGITALOCEAN_CLUSTER_NAME }}
+    - name: Update deployment secrets
+      run: |
+          cat << EOF >> .env.prod
+          DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}
+          DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
+          DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }}
+          DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          REDIS_USER_NAME=${{ secrets.REDIS_USER_NAME }}
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_HOST_PORT=${{ secrets.REDIS_HOST_PORT }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}  
+          POSTGRES_DB= ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER_NAME=${{ secrets.POSTGRES_USER_NAME }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+          TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_PHONE_NUMBER=${{ secrets.TWILIO_PHONE_NUMBER }}
+          TENCENT_COS_SECRET_ID: ${{ secrets.TENCENT_COS_SECRET_ID }}
+          TENCENT_COS_SECRET_KEY: ${{ secrets.TENCENT_COS_SECRET_KEY }}
+          TENCENT_COS_REGION: ${{ secrets.TENCENT_COS_REGION }}
+          EOF
+          kubectl delete django-k8s-web-prod-env
+          kubectl create secret generic django-k8s-web-prod-env --from-env-file=.env.prod
+
     - name: Update Deployment image
       run: | 
         kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}
