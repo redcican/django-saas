@@ -90,7 +90,7 @@ jobs:
       run: |
         docker build -f Dockerfile \
             -t registry.digitalocean.com/django-tracer/django-tracer:latest \
-            -t registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}-${GITHUB-RUN-ID::5} \
+            -t registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7} \
             .
     - name: Push container image to DO Container Registry
       run: |
@@ -126,7 +126,7 @@ jobs:
 
     - name: Update Deployment image
       run: | 
-        kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}-${GITHUB-RUN-ID::5}
+        kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}
     - name: Wait for rollout to finish
       run: |
         kubectl rollout status deployment/django-k8s-web-deployment
