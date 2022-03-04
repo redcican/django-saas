@@ -80,7 +80,8 @@ redis_password = os.getenv('REDIS_PASSWORD')
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis:://{redis_host}:{redis_port}/0",  # 安装redis的主机的 IP 和 端口
+        #"LOCATION": f"redis:://{redis_host}:{redis_port}/0",  # 安装redis的主机的 IP 和 端口
+        "LOCATION": f"rediss:://{redis_host}:{redis_port}/0",  # 安装redis的主机的 IP 和 端口
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {
