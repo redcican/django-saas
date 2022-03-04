@@ -1,5 +1,6 @@
 Django==3.2.9
-django-redis==5.1.0
+redis
+#django-redis==5.1.0
 phonenumbers==8.12.40
 #psycopg2==2.9.2
 psycopg2-binary

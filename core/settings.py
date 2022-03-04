@@ -74,24 +74,29 @@ TEMPLATES = [
     },
 ]
 
-redis_host = os.getenv('REDIS_HOST')
-redis_port = os.getenv('REDIS_HOST_PORT')
-redis_password = os.getenv('REDIS_PASSWORD')
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        #"LOCATION": f"redis:://{redis_host}:{redis_port}/0",  # 安装redis的主机的 IP 和 端口
-        "LOCATION": f"rediss:://{redis_host}:{redis_port}/0",  # 安装redis的主机的 IP 和 端口
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 1000,
-                "encoding": 'utf-8'
-            },
-            "PASSWORD": redis_password  # redis密码
-        }
-    }
-}
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = os.getenv('REDIS_PORT')
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
+
+# redis_host = os.getenv('REDIS_HOST')
+# redis_port = os.getenv('REDIS_HOST_PORT')
+# redis_password = os.getenv('REDIS_PASSWORD')
+
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         #"LOCATION": f"redis:://{redis_host}:{redis_port}/0",  # 安装redis的主机的 IP 和 端口
+#         "LOCATION": f"rediss:://{redis_host}:{redis_port}/0",  # 安装redis的主机的 IP 和 端口
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#             "CONNECTION_POOL_KWARGS": {
+#                 "max_connections": 1000,
+#                 "encoding": 'utf-8'
+#             },
+#             "PASSWORD": redis_password  # redis密码
+#         }
+#     }
+# }
 
 WSGI_APPLICATION = 'core.wsgi.application'
 

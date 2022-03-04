@@ -2,7 +2,8 @@ from django import forms
 from tracer import models
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
-from django_redis import get_redis_connection
+#from django_redis import get_redis_connection
+from utils.get_redis_connection import redis_connection
 import random
 from utils.send_sms import send_sms
 from utils import encrypt
@@ -85,7 +86,8 @@ class RegisterForm(BootstrapForm, forms.ModelForm):
         if not mobile_phone:
             return code
         
-        conn = get_redis_connection()
+        # conn = get_redis_connection()
+        conn = redis_connection
         redis_code = conn.get(mobile_phone)
         if not redis_code:
             raise ValidationError('Invalid code or expired, please try again')
@@ -134,7 +136,8 @@ class SendSmsForm(forms.Form):
             # self.add_error('mobile_phone', 'Sending sms failed')
         
         # save the code to the redis cache
-        conn = get_redis_connection()
+        #conn = get_redis_connection()
+        conn = redis_connection
         conn.set(mobile_phone, code, ex=60)
             
         
@@ -164,7 +167,8 @@ class LoginSmsForm(BootstrapForm, forms.Form):
         if not mobile_phone:
             return code
 
-        conn = get_redis_connection()
+        # conn = get_redis_connection()
+        conn = redis_connection
         redis_code = conn.get(mobile_phone)
         if not redis_code:
             raise ValidationError('Invalid code or expired, please try again')

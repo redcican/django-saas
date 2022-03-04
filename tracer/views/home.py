@@ -1,8 +1,8 @@
 import datetime
 import json
 from django.http import HttpResponse
-from django_redis import get_redis_connection
-
+#from django_redis import get_redis_connection
+from utils.get_redis_connection import redis_connection
 from django.shortcuts import render, redirect
 from tracer import models
 from utils.encrypt import uid
@@ -64,7 +64,8 @@ def payment(request, policy_id):
         'total_price': original_price - round(balance, 2),
     }
 
-    conn = get_redis_connection()
+    #conn = get_redis_connection()
+    conn = redis_connection
     key = f'payment_{request.tracer.user.mobile_phone}'
     conn.set(key, json.dumps(context), ex=60 * 30)
 
@@ -76,7 +77,8 @@ def payment(request, policy_id):
 
 def pay(request):
     """pay page for ali pay"""
-    conn = get_redis_connection()
+    #conn = get_redis_connection()
+    conn = redis_connection
     key = f'payment_{request.tracer.user.mobile_phone}'
 
     context_string = conn.get(key)
