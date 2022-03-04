@@ -29,7 +29,7 @@ jobs:
       TENCENT_COS_SECRET_ID: ${{ secrets.TENCENT_COS_SECRET_ID }}
       TENCENT_COS_SECRET_KEY: ${{ secrets.TENCENT_COS_SECRET_KEY }}
       TENCENT_COS_REGION: ${{ secrets.TENCENT_COS_REGION }}
-      DIGITALOCEAN_CLUSTER_NAME: a497714c-9791-4b8a-b869-67efaca8d732
+
 
     services:
       postgres_main:
@@ -97,7 +97,7 @@ jobs:
         docker push registry.digitalocean.com/django-tracer/django-tracer --all-tags
     - name: k8s cluster kubeconfig file short-lived creds
       run: |
-        doctl kubernetes cluster kubeconfig save ${{ env.DIGITALOCEAN_CLUSTER_NAME }} --expiry-seconds 600
+        doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.DIGITALOCEAN_CLUSTER_NAME }}
     - name: Update Deployment image
       run: | 
         kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}
