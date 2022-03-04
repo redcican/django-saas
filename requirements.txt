@@ -11,6 +11,5 @@ qcloud-python-sts==3.0.5
 django-bootstrap-datepicker-plus==4.0.0
 requests~=2.27.1
 gunicorn
-django-dotenv
+python-dotenv
 whitenoise
-django-storages
