@@ -95,9 +95,9 @@ jobs:
     - name: Push container image to DO Container Registry
       run: |
         docker push registry.digitalocean.com/django-tracer/django-tracer --all-tags
-    - name: k8s cluster kubeconfig file short-lived crds
+    - name: k8s cluster kubeconfig file short-lived creds
       run: |
-        doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ env.DIGITALOCEAN_CLUSTER_NAME }}
+        doctl kubernetes cluster kubeconfig save ${{ env.DIGITALOCEAN_CLUSTER_NAME }} --expiry-seconds 600
     - name: Update Deployment image
       run: | 
         kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/django-tracer/django-tracer:${GITHUB_SHA::7}
