@@ -8,6 +8,7 @@ import random
 from utils.send_sms import send_sms
 from utils import encrypt
 from tracer.forms.bootstrap import BootstrapForm
+import concurrent.futures
 
 phone_regex = RegexValidator(
        regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
@@ -128,8 +129,11 @@ class SendSmsForm(forms.Form):
         # check if the sms was sent successfully
         code = ''.join([str(random.randint(0, 9)) for _ in range(4)])
         
-        send_result = send_sms(mobile_phone, tpl, code)
-                
+        #send_result = send_sms(mobile_phone, tpl, code)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(send_sms, mobile_phone, tpl, code)
+            send_result = future.result()
+
         if send_result.status != 'sent':
             raise ValidationError(
                 f'Sending sms failed: {send_result.error_message}')
