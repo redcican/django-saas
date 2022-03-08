@@ -11,6 +11,8 @@ services:
     environment:
       - PORT=8020
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=1228
     env_file:
       - .env
     ports:
@@ -37,15 +39,15 @@ services:
     container_name: postgres_db
 
   redis:
-    image: redis:alpine
+    image: redis
     restart: always
     expose:
-      - 6380
+      - 6379
     ports:
-      - "6380:6380"
+      - "6379:6379"
     volumes:
       - redis_data:/data
-    entrypoint: redis-server --appendonly yes --port 6380
+    command: redis-server --requirepass 1228
     container_name: redis
 
 volumes:
